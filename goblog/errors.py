@@ -1,0 +1,4 @@
+
+class GoBlogError(Exception):
+    pass
+
