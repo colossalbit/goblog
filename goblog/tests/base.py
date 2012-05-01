@@ -1,13 +1,14 @@
 from django.utils import unittest
+from django.test import TestCase as DjangoTestCase
 
 from goblog import models
 
-class TestCaseBase(unittest.TestCase):
+class TestCaseBase(DjangoTestCase):
     pass
     
     
 class DBTestCaseBase(TestCaseBase):
-    def tearDown(self):
+    def ignore_tearDown(self):
         models.ArticleEdit.objects.all().delete()
         models.ArticleContent.objects.all().delete()
         models.Article.objects.all().delete()

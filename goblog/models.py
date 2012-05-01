@@ -31,8 +31,8 @@ def _check_read_only(instance, fields):
         pass
 
 
-class BlogSpace(models.Model):
-    name = models.CharField(max_length=appsettings.BLOGSPACE_NAME_MAXLEN)
+##class BlogSpace(models.Model):
+##    name = models.CharField(max_length=appsettings.BLOGSPACE_NAME_MAXLEN)
 
 
 class Blog(models.Model):
@@ -40,14 +40,19 @@ class Blog(models.Model):
     ##id =        models.CharField(max_length=32, primary_key=True)
     name =      models.CharField(max_length=appsettings.BLOG_NAME_MAXLEN, primary_key=True)  # used in URL
     title =     models.TextField()
-    blogspace = models.ForeignKey(BlogSpace)
+    ##blogspace = models.ForeignKey(BlogSpace)
+    ##created =   models.DateTimeField(default=datetime.datetime.now)
+    # To sort by most recently updated: sort on max(created, self.articles.get(max(published)))
     ##theme =     models.CharField(max_length=100, blank=True)
     # TODO: Other blog level info here... 
     # TODO: site? language? default timezone?
     # TODO: option to disable localizing time displays?
     
+    def __unicode__(self):
+        return self.name
+    
     def save(self, *args, **kwargs):
-        _check_read_only(self, ('name','blogspace',))
+        _check_read_only(self, ('name',))
         super(Blog, self).save(*args, **kwargs)
     
 
