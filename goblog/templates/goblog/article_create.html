@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>{{ blog.title }}: New Article</title>
+</head>
+
+<body>
+
+<h1>{{ blog.title }}: New Article</h1>
+
+<p>Isn't this a cool article?</p>
+
+<div>
+  <form action="{% url article-create blogid=blog.name %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit" />
+  </form>
+</div>
+
+</body>
+
+</html>

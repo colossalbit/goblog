@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.utils import timezone as djtimezone
 
 from . import errors, appsettings
 
@@ -11,12 +12,17 @@ from . import errors, appsettings
 # Extra User attributes:
 #   - timezone (to localize time displays)
 #   - incorporate OpenID information?
+#   - show username, first and last name, other?
 
 
 # Use this DefaultBlog model, or use a setting GOBLOG_DEFAULT_BLOG?
 ##class DefaultBlog(models.Model):
 ##    site =          models.ForeignKey(Site, unique=True)
 ##    defaultblog =   models.ForeignKey('Blog')
+
+#==============================================================================#
+def datetime_now():
+    return djtimezone.now()
 
 
 def _check_read_only(instance, fields):
@@ -26,7 +32,8 @@ def _check_read_only(instance, fields):
         obj = instance.__class__.objects.only(*fields).get(pk=instance.pk)
         for field in fields:
             if not getattr(obj, field) == getattr(instance, field):
-                raise errors.GoBlogError()
+                m = "Cannot modify field '{0}', it is read-only.".format(field)
+                raise ValidationError(m)
     except ObjectDoesNotExist:
         pass
 
@@ -35,13 +42,16 @@ def _check_read_only(instance, fields):
 ##    name = models.CharField(max_length=appsettings.BLOGSPACE_NAME_MAXLEN)
 
 
+#==============================================================================#
 class Blog(models.Model):
     """A blog."""
     ##id =        models.CharField(max_length=32, primary_key=True)
-    name =      models.CharField(max_length=appsettings.BLOG_NAME_MAXLEN, primary_key=True)  # used in URL
+    # The name is used in the URL.
+    name =      models.SlugField(max_length=appsettings.BLOG_NAME_MAXLEN, 
+                                 primary_key=True)
     title =     models.TextField()
     ##blogspace = models.ForeignKey(BlogSpace)
-    ##created =   models.DateTimeField(default=datetime.datetime.now)
+    ##created =   models.DateTimeField(default=datetime_now)
     # To sort by most recently updated: sort on max(created, self.articles.get(max(published)))
     ##theme =     models.CharField(max_length=100, blank=True)
     # TODO: Other blog level info here... 
@@ -50,34 +60,52 @@ class Blog(models.Model):
     
     def __unicode__(self):
         return self.name
+        
+    def clean(self):
+        super(Blog, self).clean()
     
     def save(self, *args, **kwargs):
-        _check_read_only(self, ('name',))
+        ##_check_read_only(self, ('name',))
         super(Blog, self).save(*args, **kwargs)
     
 
+#==============================================================================#
 class Article(models.Model):
     """An article in a blog."""
-    id =            models.CharField(max_length=appsettings.ARTICLE_NAME_MAXLEN, primary_key=True)
+    id =            models.CharField(max_length=appsettings.ARTICLE_NAME_MAXLEN, 
+                                     primary_key=True)
     blog =          models.ForeignKey(Blog, related_name='articles')
     author =        models.ForeignKey(User, related_name='+')
     title =         models.TextField()
-    published =     models.DateTimeField(null=True, default=None)
+    published =     models.DateTimeField(null=True, default=None, blank=True)
     # should default to the blog's theme
     ##theme =         models.CharField(max_length=100, blank=True)
-    created =       models.DateTimeField(default=datetime.datetime.now)
+    created =       models.DateTimeField(default=datetime_now, editable=False)
+    
+    # Changing the compiler of an existing article should require the article 
+    # be recompiled with the new compiler *before* saving the change.
+    compiler_name = models.CharField(
+                            max_length=appsettings.ARTICLE_COMPILER_MAXLEN,
+                            default=appsettings.ARTICLE_COMPILER_DEFAULT)
+    
     # Do not show in various lists, such as recently modified articles. Useful 
     # for non-article pages such as "about" or "links".
     ##nolist =        models.BooleanField(default=False)
     
-    def save(self, *args, **kwargs):
+    def __unicode__(self):
+        return u'{0} -- "{1}"'.format(self.id, self.title)
+        
+    def clean(self):
+        super(Article, self).clean()
         _check_read_only(self, ('blog','author','created',))
         try:
-            obj = Article.objects.only(*fields).get(pk=self.pk)
+            obj = Article.objects.only('published').get(pk=self.pk)
             if obj.published is not None and obj.published != self.published:
-                raise errors.GoBlogError()
+                raise ValidationError('The published date cannot be changed.')
         except ObjectDoesNotExist:
             pass
+    
+    def save(self, *args, **kwargs):
         super(Article, self).save(*args, **kwargs)
     
     
@@ -87,12 +115,16 @@ class ArticleEdit(models.Model):
     Note: This is *not* intended to record the actual changes to the content.
     It simply records who edited it and when.
     """
-    article =       models.ForeignKey(Article, related_name='edits')
-    editor =        models.ForeignKey(User, related_name='+')
-    date =          models.DateTimeField(default=datetime.datetime.now)
+    article =       models.ForeignKey(Article, related_name='edits', 
+                                      editable=False)
+    editor =        models.ForeignKey(User, related_name='+', editable=False)
+    date =          models.DateTimeField(default=datetime_now, editable=False)
+    
+    def clean(self):
+        super(ArticleEdit, self).clean()
+        _check_read_only(self, ('article','editor','date',))
     
     def save(self, *args, **kwargs):
-        _check_read_only(self, ('article','editor','date',))
         super(ArticleEdit, self).save(*args, **kwargs)
     
     
@@ -100,20 +132,32 @@ class ArticleContent(models.Model):
     """Contains the article's content. These fields could have been a part of 
     'Article' itself, but instead are separated for performance reasons.
     """
-    article =       models.OneToOneField(Article, related_name='content')
+    article =       models.OneToOneField(Article, related_name='content', 
+                                         editable=True)
     raw =           models.TextField()
-    full =          models.TextField(blank=True)
+    full =          models.TextField(blank=True, editable=False)
+    # The brief is shown on the front page and in other summaries. If blank, 
+    # 'full' is used.
+    brief =         models.TextField(blank=True, editable=False)
+    
+    def clean(self):
+        super(ArticleContent, self).clean()
+        _check_read_only(self, ('article',))
+        # set 'full' and 'brief'
+        if self.raw:
+            from .core.articlecompilers import compile
+            full, brief = compile(self.article.compiler_name, self.raw)
+            self.full = full
+            self.brief = brief
+        else:
+            self.full = ''
+            self.brief = ''
     
     def save(self, *args, **kwargs):
-        try:
-            obj = ArticleContent.objects.only('article').get(pk=self.pk)
-            if not obj.article == self.article:
-                raise errors.GoBlogError()
-        except ObjectDoesNotExist:
-            pass
         super(ArticleContent, self).save(*args, **kwargs)
 
     
+#==============================================================================#
     
 ##class Tag(models.Model):
 ##    """Tag that can be added to an article.  Tags are specific to a tagspace."""

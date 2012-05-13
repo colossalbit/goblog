@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>{{ article.title }} ({{ article.blog.title }})</title>
+</head>
+
+<body>
+
+<h1>{{ article.blog.title }}</h1>
+
+<p>Isn't this a cool article?</p>
+
+<div class="article">
+  <h2>{{ article.title }}</h2>
+  <p>by <a href="TODO">{{ article.author.username }}</a> -- 
+    {{ article.published }} {{ article.published|date:"e (\U\T\CO)" }}
+  </p>
+  <div class="article-content">
+    {{ article.content.full|safe }}
+  </div> <!-- div.article-content -->
+</div> <!-- div.article -->
+
+</body>
+
+</html>

@@ -1,0 +1,88 @@
+- model: auth.user
+  pk: -1
+  fields:
+    username:   AnonymousUser
+    first_name: ''
+    last_name:  ''
+    email:      ''
+    date_joined:    2012-01-01 12:00:00.000000+00:00
+    last_login:     2012-01-01 12:00:00.000000+00:00
+    user_permissions:   []
+    groups:             []
+    is_active:      true
+    is_staff:       false
+    is_superuser:   false
+    password: ''
+
+- model: auth.user
+  pk: 1
+  fields:
+    username:   ArtVandelay
+    first_name: 'Art'
+    last_name:  'Vandelay'
+    email:      'vandelay@example.com'
+    date_joined:    2012-01-01 12:00:00.000000+00:00
+    last_login:     2012-01-01 12:00:00.000000+00:00
+    user_permissions:   []
+    groups:             []
+    is_active:      true
+    is_staff:       true
+    is_superuser:   true
+    password: pbkdf2_sha256$10000$8QVxkgCgP5pR$EJLri8p3e9qWUN/H3760Cm0xI3aUtF7rfMeIHXfGGYY=
+
+# Blog data
+- model:    goblog.blog
+  pk:       artsblog
+  fields:
+    title:  "Art's Blog"
+
+- model: goblog.article
+  pk: Architect
+  fields:
+    author: 1
+    blog: artsblog
+    compiler_name: goblog.core.articlecompilers.NoHtmlArticleCompiler
+    created:    2012-01-01 12:00:00.000000+00:00
+    published:  2012-01-01 12:00:00.000000+00:00
+    title:      And You Want to be my Latex Salesman!
+
+- model: goblog.articlecontent
+  pk: 1
+  fields:
+    article: Architect
+    brief: "<p>
+           What's the deal with Sagman, Bennett, Robbins, Oppenheim and 
+           Taff? I mean, what's the deal already? Does a company really need so 
+           many names? I think the answer to our problem lies in a stakeout. We 
+           just stakeout the office. I know where it is--midtown.
+           </p>"
+    full: "<p>
+           What's the deal with Sagman, Bennett, Robbins, Oppenheim and 
+           Taff? I mean, what's the deal already? Does a company really need so 
+           many names? I think the answer to our problem lies in a stakeout. We 
+           just stakeout the office. I know where it is--midtown.
+           </p>
+           <p>
+           Just say you're going there to meet me.  Call me Art Cor...velay.  
+           Art Corvelay.  I'm an importer.
+           </p><p>
+           Just an importer? Don't you think you should handle exports too?
+           </p><p>
+           Fine.  I'm an importer-exporter. Are you happy? Oh, I know, better 
+           yet, call me Art Vandelay.  I'm an architect.
+           </p>"
+    raw: "<p>
+         What's the deal with Sagman, Bennett, Robbins, Oppenheim and 
+         Taff? I mean, what's the deal already? Does a company really need so 
+         many names? I think the answer to our problem lies in a stakeout. We 
+         just stakeout the office. I know where it is--midtown.
+         </p>
+         <p>
+         Just say you're going there to meet me.  Call me Art Cor...velay.  
+         Art Corvelay.  I'm an importer.
+         </p><p>
+         Just an importer? Don't you think you should handle exports too?
+         </p><p>
+         Fine.  I'm an importer-exporter. Are you happy? Oh, I know, better 
+         yet, call me Art Vandelay.  I'm an architect.
+         </p>"

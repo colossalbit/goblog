@@ -11,6 +11,32 @@
 
 <p>Welcome to the blog!</p>
 
+{% for article in articles %}
+  <div class="article">
+    
+    <h2>
+      <a href="{% url article-view blogid=blog.name articleid=article.id %}">{{ article.title }}</a>
+    </h2>
+    
+    <p>by <a href="TODO">{{ article.author.username }}</a> -- 
+      {{ article.published }} {{ article.published|date:"e (\U\T\CO)" }}
+    </p>
+    
+    <div class="article-content">
+    {% if article.content.brief %}
+        {{ article.content.brief|safe }}
+    {% else %}
+        {{ article.content.full|safe }}
+    {% endif %}
+    </div> <!-- div.article-content -->
+    
+    {% if article.content.brief %}
+      <a href="{% url article-view blogid=blog.name articleid=article.id %}">read more...</a>
+    {% endif %}
+    
+  </div> <!-- div.article -->
+{% endfor %}
+
 </body>
 
 </html>
