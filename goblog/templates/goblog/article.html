@@ -1,12 +1,12 @@
-<!doctype html>
-<html>
+{% extends "goblog/base.html" %}
 
-<head>
-    <title>{{ article.title }} ({{ article.blog.title }})</title>
-</head>
 
-<body>
+{% block title %}
+{{ article.title }} ({{ article.blog.title }}) 
+{% endblock %}
 
+
+{% block body %}
 <h1>{{ article.blog.title }}</h1>
 
 <p>Isn't this a cool article?</p>
@@ -20,7 +20,4 @@
     {{ article.content.full|safe }}
   </div> <!-- div.article-content -->
 </div> <!-- div.article -->
-
-</body>
-
-</html>
+{% endblock body %}

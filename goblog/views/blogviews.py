@@ -98,14 +98,18 @@ class ArticleCreateView(FormView):
         return self._author
     
     def get_success_url(self):
+        # TODO: make success URL redirect to article
         return urlreverse('blog-main', kwargs={'blogid': self.get_blogid()})
+        
+    def show_preview(self):
+        return self.request.POST.get('submit', None) == 'Preview'
         
     def get_context_data(self, **kwargs):
         context = super(ArticleCreateView, self).get_context_data(**kwargs)
         context['blog'] = self.get_blog()
         return context
         
-    def form_valid(self, form):
+    def create_article(self, form):
         import uuid
         blog = self.get_blog()
         articleargs = {
@@ -117,6 +121,9 @@ class ArticleCreateView(FormView):
         }
         article = models.Article(**articleargs)
         article.save()
+        return article
+        
+    def create_article_content(self, form, article):
         contentargs = {
             'article': article,
             'raw': form.cleaned_data['text'],
@@ -125,6 +132,109 @@ class ArticleCreateView(FormView):
         }
         content = models.ArticleContent(**contentargs)
         content.save()
+        return content
+        
+    def form_valid(self, form):
+        # TODO: allow preview before saving
+        article = self.create_article(form)
+        content = self.create_article_content(form, article)
         return super(ArticleCreateView, self).form_valid(form)
+        
+    def form_valid(self, form):
+        if self.show_preview():
+            context = self.get_context_data(form=form, 
+                                            preview_content=form.article_full)
+            return self.render_to_response(context)
+        else:
+            article = self.create_article(form)
+            content = self.create_article_content(form, article)
+            return super(ArticleCreateView, self).form_valid(form)
+
+
+class ArticleEditView(FormView):
+    form_class = forms.ArticleEditForm
+    template_name = 'goblog/article_edit.html'
+    
+    def get_blogid(self):
+        return self.kwargs['blogid']
+        
+    def get_blog(self):
+        if not hasattr(self, '_blog'):
+            self._blog = models.Blog.objects.get(name=self.get_blogid())
+        return self._blog
+    
+    def get_editorid(self):
+        return self.request.user.id
+    
+    def get_editor(self):
+        if not hasattr(self, '_editor'):
+            self._editor = User.objects.get(id=self.get_editorid())
+        return self._editor
+    
+    def get_articleid(self):
+        return self.kwargs['articleid']
+    
+    def get_article(self):
+        if not hasattr(self, '_article'):
+            self._article = models.Article.objects.select_related('content').get(id=self.get_articleid())
+        return self._article
+        
+    def get_article_content(self):
+        return self.get_article().content
+    
+    def get_success_url(self):
+        # TODO: make success URL redirect to article
+        return urlreverse('blog-main', kwargs={'blogid': self.get_blogid()})
+        
+    def show_preview(self):
+        return self.request.POST.get('submit', None) == 'Preview'
+        
+    def get_context_data(self, **kwargs):
+        context = super(ArticleEditView, self).get_context_data(**kwargs)
+        context['blog'] = self.get_blog()
+        return context
+        
+    def update_article(self, form):
+        article = self.get_article()
+        article.title = form.cleaned_data['title']
+        article.compiler_name = form.cleaned_data['compiler_name']
+        article.save()
+        self._article = article
+        return article
+        
+    def update_article_content(self, form):
+        content = self.get_article_content()
+        content.raw = form.cleaned_data['text']
+        content.full = form.article_full
+        content.brief = form.article_brief
+        content.save()
+        return content
+        
+    def create_article_edit(self, form, article):
+        kwargs = {
+            'article': article,
+            'editor': self.get_editor(),
+        }
+        edit = models.ArticleEdit(**kwargs)
+        edit.save()
+        return edit
+        
+    def form_valid(self, form):
+        # TODO: allow preview before saving
+        article = self.update_article(form)
+        content = self.update_article_content(form)
+        edit = self.create_article_edit(form, article)
+        return super(ArticleEditView, self).form_valid(form)
+        
+    def form_valid(self, form):
+        if self.show_preview():
+            context = self.get_context_data(form=form, 
+                                            preview_content=form.article_full)
+            return self.render_to_response(context)
+        else:
+            article = self.update_article(form)
+            content = self.update_article_content(form)
+            edit = self.create_article_edit(form, article)
+            return super(ArticleEditView, self).form_valid(form)
 
 #==============================================================================#

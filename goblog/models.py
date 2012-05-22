@@ -58,6 +58,11 @@ class Blog(models.Model):
     # TODO: site? language? default timezone?
     # TODO: option to disable localizing time displays?
     
+    class Meta(object):
+        permissions = (
+            ('create_article','Create article'),
+        )
+    
     def __unicode__(self):
         return self.name
         
@@ -67,6 +72,20 @@ class Blog(models.Model):
     def save(self, *args, **kwargs):
         ##_check_read_only(self, ('name',))
         super(Blog, self).save(*args, **kwargs)
+        
+    def user_can_create_article(self, user):
+        if user.is_superuser:
+            return True
+        elif user.has_perm('goblog.create_article', self):
+            return True
+        return False
+        
+    def user_can_edit_blog(self, user):
+        if user.is_superuser:
+            return True
+        elif user.has_perm('goblog.change_blog', self):
+            return True
+        return False
     
 
 #==============================================================================#
@@ -107,6 +126,15 @@ class Article(models.Model):
     
     def save(self, *args, **kwargs):
         super(Article, self).save(*args, **kwargs)
+        
+    def user_can_edit_article(self, user):
+        if user.is_superuser:
+            return True
+        elif self.author == user:
+            return True
+        elif user.has_perm('goblog.change_article', self):
+            return True
+        return False
     
     
 class ArticleEdit(models.Model):

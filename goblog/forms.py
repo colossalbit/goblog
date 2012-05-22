@@ -54,6 +54,7 @@ class ArticleCreateForm(ArticleFormBase):
     
     
 class ArticleEditForm(ArticleFormBase):
+    # TODO: disallow published dates before created dates
     pass
 
 

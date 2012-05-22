@@ -1,24 +1,32 @@
-<!doctype html>
-<html>
+{% extends "goblog/base.html" %}
 
-<head>
-    <title>{{ blog.title }}: New Article</title>
-</head>
 
-<body>
+{% block title %}
+{{ blog.title }}: New Article
+{% endblock %}
 
+
+{% block body %}
 <h1>{{ blog.title }}: New Article</h1>
 
 <p>Isn't this a cool article?</p>
+
+{% if preview_content %}
+<p>Preview:</p>
+<div class='article'>
+<div class='article-content'>
+{{ preview_content|safe }}
+</div>
+</div>
+{% endif %}
 
 <div>
   <form action="{% url article-create blogid=blog.name %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Submit" />
+    <input name="submit" type="submit" value="Preview" />
+    <input name="submit" type="submit" value="Submit" />
   </form>
 </div>
 
-</body>
-
-</html>
+{% endblock body %}

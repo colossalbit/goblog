@@ -1,0 +1,7 @@
+django>=1.4
+pytz
+guardian-django
+
+# recommended:
+#  south
+

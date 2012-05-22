@@ -1,12 +1,12 @@
-<!doctype html>
-<html>
+{% extends "goblog/base.html" %}
 
-<head>
-    <title>{{ blog.title }}</title>
-</head>
 
-<body>
+{% block title %}
+{{ blog.title }}
+{% endblock %}
 
+
+{% block body %}
 <h1>{{ blog.title }}</h1>
 
 <p>Welcome to the blog!</p>
@@ -36,7 +36,4 @@
     
   </div> <!-- div.article -->
 {% endfor %}
-
-</body>
-
-</html>
+{% endblock body %}

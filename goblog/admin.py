@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django import forms
-##from guardian import 
+
+from guardian.admin import GuardedModelAdmin
 
 from . import models
 
@@ -15,7 +16,7 @@ from . import models
         # return self.cleaned_data["name"]
 
 
-class BlogAdmin(admin.ModelAdmin):
+class BlogAdmin(GuardedModelAdmin):
     list_display = ('name', 'title',)
     
     fields = ('name', 'title',)
@@ -27,7 +28,7 @@ class BlogAdmin(admin.ModelAdmin):
             return ['name']
     
 
-class ArticleAdmin(admin.ModelAdmin):
+class ArticleAdmin(GuardedModelAdmin):
     list_display = ('id', 'blog', 'author', 'title', 'published', 'created', 'compiler_name',)
     
     fields = ('id', 'blog', 'author', 'title', 'published','compiler_name',)
@@ -38,9 +39,24 @@ class ArticleAdmin(admin.ModelAdmin):
         else:
             return ['id','blog','created',]
     
+    def has_add_permission(self, request):
+        return False
+    
 
 class ArticleEditAdmin(admin.ModelAdmin):
     list_display = ('article', 'editor', 'date',)
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        if obj:
+            return request.user.has_perm('goblog.change_article', obj.article)
+        else:
+            return request.user.has_perm('goblog.change_article')
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
     
 
 class ArticleContentAdmin(admin.ModelAdmin):
@@ -53,6 +69,21 @@ class ArticleContentAdmin(admin.ModelAdmin):
             return []
         else:
             return ['article',]
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        if obj:
+            return request.user.has_perm('goblog.change_article', obj.article)
+        else:
+            return request.user.has_perm('goblog.change_article')
+    
+    def has_delete_permission(self, request, obj=None):
+        if obj:
+            return request.user.has_perm('goblog.delete_article', obj.article)
+        else:
+            return request.user.has_perm('goblog.delete_article')
     
 
 admin.site.register(models.Blog, BlogAdmin)
