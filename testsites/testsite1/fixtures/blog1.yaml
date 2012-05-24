@@ -1,0 +1,65 @@
+- model: goblog.blog
+  pk: blog1
+  fields:
+    title: Demo Blog 1
+
+# article1
+- model: goblog.article
+  pk: article1
+  fields:
+    blog: blog1
+    title: This is the Title!
+    author: 100
+    created: !!timestamp '2012-05-01 10:00:00+00:00'
+    published: null
+    compiler_name: cleanhtml
+  
+- model: goblog.articlecontent
+  pk: 1
+  fields:
+    article: article1
+    brief: '<p>This is the brief.</p>'
+    full: '<p>This is the brief.</p><p>This is the content!</p>'
+    raw: '<p>This is the brief.</p>{{ end brief }}<p>This is the content!</p>'
+
+# article2
+- model: goblog.article
+  pk: article2
+  fields:
+    blog: blog1
+    title: I Am Article Two
+    author: 100
+    created: !!timestamp '2012-05-05 22:00:00+00:00'
+    published: 2012-05-05 22:00:00+00:00
+    compiler_name: cleanhtml
+  
+- model: goblog.articlecontent
+  pk: 2
+  fields:
+    article: article2
+    brief: '<p>To brief or not to brief, that is the question.</p>'
+    full: '<p>To brief or not to brief, that is the question.</p><p>Insert another pseudo-Shakespeare quote here.</p>'
+    raw: '<p>To brief or not to brief, that is the question.</p>{{ end brief }}<p>Insert another pseudo-Shakespeare quote here.</p>'
+
+# article3
+- model: goblog.article
+  pk: article3
+  fields:
+    blog: blog1
+    title: The Third Article Be I (Argggh!)
+    author: 100
+    created:   2012-05-08 09:00:00+00:00
+    published: 2012-05-08 09:00:00+00:00
+    compiler_name: cleanhtml
+  
+- model: goblog.articlecontent
+  pk: 3
+  fields:
+    article: article3
+    brief: '<p>Batton down the hatches. Shivver me timbers.</p>'
+    full: "<p>Batton down the hatches. Shivver me timbers.</p><p>Yo ho ho and a bottle of rum. And he's the very model of a modern Major-General.</p>"
+    raw: "<p>Batton down the hatches. Shivver me timbers.</p>{{ end brief }}<p>Yo ho ho and a bottle of rum. And he's the very model of a modern Major-General.</p>"
+
+
+
+

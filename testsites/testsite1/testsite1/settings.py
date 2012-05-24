@@ -89,6 +89,8 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '5ws)r7rfqt#-#!96$o@ago6p8pl&amp;%(-v%r%400&amp;+5i*e2d^9ua'
 
+SESSION_COOKIE_NAME = 'goblog_testsite1_sessionid'
+
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',

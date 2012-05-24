@@ -1,6 +1,7 @@
 django>=1.4
 pytz
 django-guardian
+bleach
 
 # recommended:
 #  south

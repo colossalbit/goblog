@@ -104,8 +104,9 @@ class Article(models.Model):
     # Changing the compiler of an existing article should require the article 
     # be recompiled with the new compiler *before* saving the change.
     compiler_name = models.CharField(
+                            choices=appsettings.ARTICLE_COMPILER_CHOICES,
                             max_length=appsettings.ARTICLE_COMPILER_MAXLEN,
-                            default=appsettings.ARTICLE_COMPILER_DEFAULT)
+                            default=appsettings.GOBLOG_ARTICLE_COMPILER_DEFAULT)
     
     # Do not show in various lists, such as recently modified articles. Useful 
     # for non-article pages such as "about" or "links".
@@ -117,12 +118,12 @@ class Article(models.Model):
     def clean(self):
         super(Article, self).clean()
         _check_read_only(self, ('blog','author','created',))
-        try:
-            obj = Article.objects.only('published').get(pk=self.pk)
-            if obj.published is not None and obj.published != self.published:
-                raise ValidationError('The published date cannot be changed.')
-        except ObjectDoesNotExist:
-            pass
+        ##try:
+        ##    obj = Article.objects.only('published').get(pk=self.pk)
+        ##    if obj.published is not None and obj.published != self.published:
+        ##        raise ValidationError('The published date cannot be changed.')
+        ##except ObjectDoesNotExist:
+        ##    pass
     
     def save(self, *args, **kwargs):
         super(Article, self).save(*args, **kwargs)

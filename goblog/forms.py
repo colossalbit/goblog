@@ -8,7 +8,7 @@ class ArticleFormBase(forms.Form):
     title = forms.CharField()
     published = forms.DateTimeField(required=False)
     compiler_name = forms.CharField(required=False, 
-                                initial=appsettings.ARTICLE_COMPILER_DEFAULT, 
+                                initial=appsettings.GOBLOG_ARTICLE_COMPILER_DEFAULT, 
                                 validators=[validators.validate_article_compiler])
     text = forms.CharField(widget=forms.Textarea)
     
@@ -24,7 +24,7 @@ class ArticleFormBase(forms.Form):
     def clean_compiler_name(self):
         name = self.cleaned_data['compiler_name']
         if not name:
-            name = appsettings.ARTICLE_COMPILER_DEFAULT
+            name = appsettings.GOBLOG_ARTICLE_COMPILER_DEFAULT
         return name
     
     def clean(self):
