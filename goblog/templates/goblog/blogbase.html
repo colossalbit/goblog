@@ -1,0 +1,39 @@
+{% extends "goblog/base.html" %}
+{% load guardian_tags %}
+
+
+{% block headtitle %}
+{{ blog.title }}
+{% endblock headtitle %}
+
+
+{% block logininfo %}
+<ul>
+    {% if user.is_authenticated %}
+        <li>{{ user.username }}</li>
+        <li><a href="TODO">Log out</a></li>
+        {% get_obj_perms user for blog as "blog_perms" %}
+        {% if "create_article" in blog_perms %}
+            <li><a href="TODO">New Article</a></li>
+        {% endif %}
+    {% else %}
+        <li><a href="TODO">Log in</a></li>
+    {% endif %}
+</ul>
+{% endblock logininfo %}
+
+
+{% block title %}
+<h1>{{ blog.title }}</h1>
+{% endblock title %}
+
+
+{% block footerleft %}
+Copyright &copy; 2012 David White
+{% endblock footerleft %}
+
+
+{% block footerright %}
+Powered by GoBlog, a Django application.
+{% endblock footerright %}
+

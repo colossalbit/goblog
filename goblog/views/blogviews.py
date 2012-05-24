@@ -75,6 +75,11 @@ class ArticleView(DetailView):
     context_object_name = 'article'
     template_name = 'goblog/article.html'
     
+    def get_context_data(self, **kwargs):
+        context = super(ArticleView, self).get_context_data(**kwargs)
+        context['blog'] = context['article'].blog
+        return context
+    
 
 #==============================================================================#
 class ArticleCreateView(FormView):

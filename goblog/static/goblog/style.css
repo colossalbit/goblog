@@ -1,0 +1,78 @@
+/* page structure */
+
+body {
+    width: 55em;
+    margin: 0 auto;
+}
+
+#header {
+    overflow: auto;
+    padding: 0.5em;
+}
+
+#logininfo-wrapper {
+    float: right;
+}
+
+#title-wrapper {
+    
+}
+
+#main {
+    width: 55em;
+    overflow: auto;
+    margin: 0 0 0 0;
+}
+
+#content-wrapper {
+    width: 40em;
+    float: left;
+}
+
+#content {
+    margin-top: 1em;
+    padding: 0 1em 0 0.5em;
+}
+
+#sidebar-wrapper {
+    margin: 0 0 0 40em;
+    overflow: hidden;
+}
+
+#sidebar {
+    margin-top: 1em;
+    padding: 0 0.5em 0 1em;
+}
+
+#footer {
+    overflow: auto;
+    padding: 0.5em;
+}
+
+#footerleft-wrapper {
+    float: left;
+}
+
+#footerright-wrapper {
+    float: right;
+}
+
+/* fonts */
+
+h1, #menu, #breadcrumbs, .article-title, .article-info, #logininfo, #sidebar, 
+#footerleft, #footerright, .page-subtitle 
+{
+    font-family: "Corbel", sans-serif;
+}
+
+.article-content {
+    font-family: "Garamond", serif;
+    font-size: 1.1em;
+}
+
+/* formatting */
+
+#logininfo ul {
+    list-style-type: none;
+}
+

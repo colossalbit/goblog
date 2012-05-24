@@ -1,23 +1,24 @@
-{% extends "goblog/base.html" %}
+{% extends "goblog/blogbase.html" %}
 
 
-{% block title %}
+{% block headtitle %}
 {{ article.title }} ({{ article.blog.title }}) 
-{% endblock %}
+{% endblock headtitle %}
 
 
-{% block body %}
-<h1>{{ article.blog.title }}</h1>
-
+{% block content %}
 <p>Isn't this a cool article?</p>
 
 <div class="article">
-  <h2>{{ article.title }}</h2>
-  <p>by <a href="TODO">{{ article.author.username }}</a> -- 
+  <h2 class="article-title">{{ article.title }}</h2>
+  <p class="article-info">by <a href="TODO">{{ article.author.username }}</a> -- 
     {{ article.published }} {{ article.published|date:"e (\U\T\CO)" }}
   </p>
   <div class="article-content">
     {{ article.content.full|safe }}
   </div> <!-- div.article-content -->
 </div> <!-- div.article -->
-{% endblock body %}
+{% endblock content %}
+
+
+{% block sidebar %}Sidebar{% endblock sidebar %}

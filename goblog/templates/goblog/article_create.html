@@ -1,15 +1,18 @@
-{% extends "goblog/base.html" %}
+{% extends "goblog/blogbase.html" %}
+
+
+{% block headtitle %}
+{{ blog.title }}: New Article
+{% endblock headtitle %}
 
 
 {% block title %}
-{{ blog.title }}: New Article
-{% endblock %}
-
-
-{% block body %}
 <h1>{{ blog.title }}: New Article</h1>
+{% endblock title %}
 
-<p>Isn't this a cool article?</p>
+
+{% block content %}
+<p>This is going to be a cool article.</p>
 
 {% if preview_content %}
 <p>Preview:</p>
@@ -29,4 +32,4 @@
   </form>
 </div>
 
-{% endblock body %}
+{% endblock content %}
