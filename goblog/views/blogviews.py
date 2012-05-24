@@ -7,24 +7,26 @@ from django.utils import timezone as djtimezone
 from django.core.urlresolvers import reverse as urlreverse
 from django.contrib.auth.models import User
 
+from django.db import connections
+from django.db.models import Count, DateTimeField
+
 from .. import models, forms
 
 #==============================================================================#
-class ArticleListMixin(object):
-    model = models.Article
-    context_object_name = 'articles'
-    
-    now = None
+class GoBlogMixin(object):
+    now = None  # facilitates testing without regard to the current date
     blogid = None
     authorid = None
+    
+    recent_articles_size = 5
     
     def get_blogid(self):
         return self.blogid
     
     def get_authorid(self):
         return self.authorid
-
-    def get_queryset(self):
+        
+    def get_articles_queryset(self):
         # articles must be published
         # published date must be at or before now
         now = self.now or djtimezone.now()
@@ -42,6 +44,43 @@ class ArticleListMixin(object):
         # TODO: articles must have chosen tag(s)
         # TODO: articles must match search criteria
         
+        return qs
+    
+    def get_archives_list(self):
+        qs = self.get_articles_queryset()
+        qs = qs.extra(select={'published': connections[models.Article.objects.db].ops.date_trunc_sql('month', 'published')})
+        qs = qs.values('published')
+        qs = qs.annotate(dcount=Count('published'))
+        # get the 'published' Field instance
+        pfield = models.Article._meta.get_field('published')
+        # Wrapping in generator function allows the results to be iterated over 
+        # multiple times
+        def _iter():
+            for obj in qs:
+                yield {
+                    # convert from string to datetime.datetime object
+                    'date':  pfield.to_python(obj['published']), 
+                    'count': obj['dcount']
+                }
+        return _iter
+        
+    def get_recent_articles_list(self):
+        qs = self.get_articles_queryset()[:self.recent_articles_size]
+        return qs
+        
+        
+#==============================================================================#
+class BlogView(GoBlogMixin, ListView):
+    model = models.Article
+    context_object_name = 'articles'
+    template_name = 'goblog/blogmain.html'
+    
+    def get_blogid(self):
+        return self.kwargs['blogid']
+        
+    def get_queryset(self):
+        qs = self.get_articles_queryset()
+        
         # As of Django 1.4, a bug prevents us from using select_related() and 
         # defer() in queries on the reverse OneToOne relationships.  Once 
         # fixed, it would probably be a good idea to do something like the 
@@ -49,14 +88,6 @@ class ArticleListMixin(object):
         ##qs = qs.select_related('content').defer('content__raw')
         qs = qs.select_related('content')
         return qs
-        
-        
-#==============================================================================#
-class BlogView(ArticleListMixin, ListView):
-    template_name = 'goblog/blogmain.html'
-    
-    def get_blogid(self):
-        return self.kwargs['blogid']
     
     def get_context_data(self, **kwargs):
         context = super(BlogView, self).get_context_data(**kwargs)
@@ -65,10 +96,12 @@ class BlogView(ArticleListMixin, ListView):
                                                     name=self.kwargs['blogid'])
         except ObjectDoesNotExist:
             raise Http404('Blog not found.')
+        context['archives'] = self.get_archives_list()
+        context['recent_articles'] = self.get_recent_articles_list()
         return context
         
 
-class ArticleView(DetailView):
+class ArticleView(GoBlogMixin, DetailView):
     model = models.Article
     slug_field = 'id'
     slug_url_kwarg = 'articleid'

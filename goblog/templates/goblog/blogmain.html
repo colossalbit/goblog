@@ -1,5 +1,5 @@
 {% extends "goblog/blogbase.html" %}
-
+{% load tz %}
 
 {% block content %}
 <p>Welcome to the blog!</p>
@@ -34,5 +34,24 @@
 {% endblock content %}
 
 
-{% block sidebar %}Sidebar{% endblock sidebar %}
+{% block sidebar %}
+<h3>Archives</h3>
+<ul>
+  {# temporarily stop conversion from UTC to locatime #}
+  {% localtime off %}
+    {% for item in archives %}
+      <li><a href="TODO">{{ item.date|date:"M Y" }} ({{ item.count }})</a></li>
+    {% endfor %}
+  {% endlocaltime %}
+</ul>
+
+<h3>Recent Articles</h3>
+<ul>
+  {% for article in recent_articles %}
+    <li>
+      <a href="{% url article-view blogid=blog.name articleid=article.id %}">{{ article.title }}</a>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock sidebar %}
 
