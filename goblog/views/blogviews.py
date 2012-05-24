@@ -1,14 +1,16 @@
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import Http404
-from django.views.generic.detail import DetailView
-from django.views.generic.list import ListView
-from django.views.generic.edit import FormView
 from django.utils import timezone as djtimezone
 from django.core.urlresolvers import reverse as urlreverse
 from django.contrib.auth.models import User
+# views:
+from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
+from django.views.generic.edit import FormView
 
 from django.db import connections
-from django.db.models import Count, DateTimeField
+from django.db.models import Count
+from django.conf import settings
 
 from .. import models, forms
 
@@ -67,6 +69,17 @@ class GoBlogMixin(object):
     def get_recent_articles_list(self):
         qs = self.get_articles_queryset()[:self.recent_articles_size]
         return qs
+        
+    def get_context_data(self, **kwargs):
+        supercls = super(GoBlogMixin, self)
+        if hasattr(supercls, 'get_context_data'):
+            context = supercls.get_context_data(**kwargs)
+        else:
+            context = kwargs
+        context['LOGIN_URL'] = settings.LOGIN_URL
+        context['LOGOUT_URL'] = settings.LOGOUT_URL
+        context['THIS_URL'] = self.request.path
+        return context
         
         
 #==============================================================================#
@@ -173,12 +186,6 @@ class ArticleCreateView(FormView):
         return content
         
     def form_valid(self, form):
-        # TODO: allow preview before saving
-        article = self.create_article(form)
-        content = self.create_article_content(form, article)
-        return super(ArticleCreateView, self).form_valid(form)
-        
-    def form_valid(self, form):
         if self.show_preview():
             context = self.get_context_data(form=form, 
                                             preview_content=form.article_full)
@@ -187,6 +194,14 @@ class ArticleCreateView(FormView):
             article = self.create_article(form)
             content = self.create_article_content(form, article)
             return super(ArticleCreateView, self).form_valid(form)
+            
+    def get(self, request, *args, **kwargs):
+        # TODO: verify user can create articles
+        return super(ArticleCreateView, self).get(request, *args, **kwargs)
+            
+    def post(self, request, *args, **kwargs):
+        # TODO: verify user can create articles
+        return super(ArticleCreateView, self).post(request, *args, **kwargs)
 
 
 class ArticleEditView(FormView):
@@ -258,13 +273,6 @@ class ArticleEditView(FormView):
         return edit
         
     def form_valid(self, form):
-        # TODO: allow preview before saving
-        article = self.update_article(form)
-        content = self.update_article_content(form)
-        edit = self.create_article_edit(form, article)
-        return super(ArticleEditView, self).form_valid(form)
-        
-    def form_valid(self, form):
         if self.show_preview():
             context = self.get_context_data(form=form, 
                                             preview_content=form.article_full)
@@ -274,5 +282,13 @@ class ArticleEditView(FormView):
             content = self.update_article_content(form)
             edit = self.create_article_edit(form, article)
             return super(ArticleEditView, self).form_valid(form)
+            
+    def get(self, request, *args, **kwargs):
+        # TODO: verify user can edit this article
+        return super(ArticleEditView, self).get(request, *args, **kwargs)
+            
+    def post(self, request, *args, **kwargs):
+        # TODO: verify user can edit this article
+        return super(ArticleEditView, self).post(request, *args, **kwargs)
 
 #==============================================================================#

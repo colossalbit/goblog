@@ -13,6 +13,11 @@ ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
 
+#LOGIN_URL = '/accounts/'
+LOGOUT_URL = '/admin/logout/'
+#LOGIN_REDIRECT_URL = '/'
+
+
 MANAGERS = ADMINS
 
 DATABASES = {
