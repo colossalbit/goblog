@@ -24,7 +24,7 @@
 {% endif %}
 
 <div>
-  <form action="{% url article-create blogid=blog.name %}" method="post">
+  <form action="{% url goblog-article-create blogid=blog.name %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <input name="submit" type="submit" value="Preview" />

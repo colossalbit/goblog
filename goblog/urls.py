@@ -16,13 +16,13 @@ def sub(urlfmt):
 urlpatterns = patterns('',
     ##(sub(r'^blogs/(?P<blogid>{BLOGID})/$'), blogviews.BlogMainView.as_view(), {}, 'blog-main'),
     # blogs/BLOGID/
-    (sub(r'^blogs/(?P<blogid>{BLOGID})/$'), blogviews.BlogView.as_view(), {}, 'blog-main'),
+    (sub(r'^blogs/(?P<blogid>{BLOGID})/$'), blogviews.BlogView.as_view(), {}, 'goblog-blog-main'),
     # blogs/BLOGID/new_article/
-    (sub(r'^blogs/(?P<blogid>{BLOGID})/new_article/$'), blogviews.ArticleCreateView.as_view(), {}, 'article-create'),
+    (sub(r'^blogs/(?P<blogid>{BLOGID})/new_article/$'), blogviews.ArticleCreateView.as_view(), {}, 'goblog-article-create'),
     # blogs/BLOGID/articles/ARTICLEID/
-    (sub(r'^blogs/(?P<blogid>{BLOGID})/articles/(?P<articleid>{ARTICLEID})/$'), blogviews.ArticleView.as_view(), {}, 'article-view'),
+    (sub(r'^blogs/(?P<blogid>{BLOGID})/articles/(?P<articleid>{ARTICLEID})/$'), blogviews.ArticleView.as_view(), {}, 'goblog-article-view'),
     # blogs/BLOGID/articles/ARTICLEID/edit/
-    (sub(r'^blogs/(?P<blogid>{BLOGID})/articles/(?P<articleid>{ARTICLEID})/edit/$'), blogviews.ArticleEditView.as_view(), {}, 'article-edit'),
+    (sub(r'^blogs/(?P<blogid>{BLOGID})/articles/(?P<articleid>{ARTICLEID})/edit/$'), blogviews.ArticleEditView.as_view(), {}, 'goblog-article-edit'),
 )
 
 #==============================================================================#

@@ -15,7 +15,7 @@
         {% if blog %}
           {% get_obj_perms user for blog as "blog_perms" %}
           {% if "create_article" in blog_perms %}
-            <li><a href="{% url article-create blogid=blog.name %}">New Article</a></li>
+            <li><a href="{% url goblog-article-create blogid=blog.name %}">New Article</a></li>
           {% endif %}
         {% endif %}
     {% else %}

@@ -150,7 +150,7 @@ class ArticleCreateView(FormView):
     
     def get_success_url(self):
         # TODO: make success URL redirect to article
-        return urlreverse('blog-main', kwargs={'blogid': self.get_blogid()})
+        return urlreverse('goblog-blog-main', kwargs={'blogid': self.get_blogid()})
         
     def show_preview(self):
         return self.request.POST.get('submit', None) == 'Preview'
@@ -237,7 +237,7 @@ class ArticleEditView(FormView):
     
     def get_success_url(self):
         # TODO: make success URL redirect to article
-        return urlreverse('blog-main', kwargs={'blogid': self.get_blogid()})
+        return urlreverse('goblog-blog-main', kwargs={'blogid': self.get_blogid()})
         
     def show_preview(self):
         return self.request.POST.get('submit', None) == 'Preview'
