@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.http import Http404
+from django.http import Http404, HttpResponseForbidden
 from django.utils import timezone as djtimezone
 from django.core.urlresolvers import reverse as urlreverse
 from django.contrib.auth.models import User
@@ -32,7 +32,8 @@ class GoBlogMixin(object):
         # articles must be published
         # published date must be at or before now
         now = self.now or djtimezone.now()
-        qs = models.Article.objects.exclude(published=None).exclude(published__gt=now)
+        qs = models.Article.objects.exclude(published=None)
+        qs = qs.exclude(published__gt=now)
         # articles must be part of the chosen blog
         blogid = self.get_blogid()
         if blogid:
@@ -50,7 +51,9 @@ class GoBlogMixin(object):
     
     def get_archives_list(self):
         qs = self.get_articles_queryset()
-        qs = qs.extra(select={'published': connections[models.Article.objects.db].ops.date_trunc_sql('month', 'published')})
+        conn = connections[models.Article.objects.db]
+        qs = qs.extra(select={'published': 
+                              conn.ops.date_trunc_sql('month', 'published')})
         qs = qs.values('published')
         qs = qs.annotate(dcount=Count('published'))
         # get the 'published' Field instance
@@ -70,6 +73,12 @@ class GoBlogMixin(object):
         qs = self.get_articles_queryset()[:self.recent_articles_size]
         return qs
         
+    def get_login_redirect_url(self):
+        return self.request.path
+        
+    def get_logout_redirect_url(self):
+        return self.request.path
+        
     def get_context_data(self, **kwargs):
         supercls = super(GoBlogMixin, self)
         if hasattr(supercls, 'get_context_data'):
@@ -78,7 +87,8 @@ class GoBlogMixin(object):
             context = kwargs
         context['LOGIN_URL'] = settings.LOGIN_URL
         context['LOGOUT_URL'] = settings.LOGOUT_URL
-        context['THIS_URL'] = self.request.path
+        context['LOGIN_REDIRECT_URL'] = self.get_login_redirect_url()
+        context['LOGOUT_REDIRECT_URL'] = self.get_logout_redirect_url()
         return context
         
         
@@ -128,10 +138,8 @@ class ArticleView(GoBlogMixin, DetailView):
     
 
 #==============================================================================#
-class ArticleCreateView(FormView):
-    form_class = forms.ArticleCreateForm
-    template_name = 'goblog/article_create.html'
-    
+class ArticleFormView(GoBlogMixin, FormView):
+        
     def get_blogid(self):
         return self.kwargs['blogid']
         
@@ -140,6 +148,39 @@ class ArticleCreateView(FormView):
             self._blog = models.Blog.objects.get(name=self.get_blogid())
         return self._blog
     
+    def get_success_url(self):
+        # TODO: make success URL redirect to article
+        return urlreverse('goblog-blog-main', 
+                          kwargs={'blogid': self.get_blogid()})
+        
+    def get_logout_redirect_url(self):
+        return self.get_blog().get_absolute_url()
+        
+    def show_preview(self):
+        return self.request.POST.get('submit', None) == 'Preview'
+        
+    def get_context_data(self, **kwargs):
+        context = super(ArticleFormView, self).get_context_data(**kwargs)
+        context['blog'] = self.get_blog()
+        return context
+            
+    def get(self, request, *args, **kwargs):
+        if not self.validate_user_permissions(request):
+            return HttpResponseForbidden()
+        else:
+            return super(ArticleFormView, self).get(request, *args, **kwargs)
+            
+    def post(self, request, *args, **kwargs):
+        if not self.validate_user_permissions(request):
+            raise HttpResponseForbidden()
+        else:
+            return super(ArticleFormView, self).post(request, *args, **kwargs)
+
+
+class ArticleCreateView(ArticleFormView):
+    form_class = forms.ArticleCreateForm
+    template_name = 'goblog/article_create.html'
+    
     def get_authorid(self):
         return self.request.user.id
     
@@ -147,18 +188,6 @@ class ArticleCreateView(FormView):
         if not hasattr(self, '_author'):
             self._author = User.objects.get(id=self.get_authorid())
         return self._author
-    
-    def get_success_url(self):
-        # TODO: make success URL redirect to article
-        return urlreverse('goblog-blog-main', kwargs={'blogid': self.get_blogid()})
-        
-    def show_preview(self):
-        return self.request.POST.get('submit', None) == 'Preview'
-        
-    def get_context_data(self, **kwargs):
-        context = super(ArticleCreateView, self).get_context_data(**kwargs)
-        context['blog'] = self.get_blog()
-        return context
         
     def create_article(self, form):
         import uuid
@@ -169,6 +198,7 @@ class ArticleCreateView(FormView):
             'author': self.get_author(),
             'title': form.cleaned_data['title'],
             'compiler_name': form.cleaned_data['compiler_name'],
+            'published': form.cleaned_data['published'],
         }
         article = models.Article(**articleargs)
         article.save()
@@ -185,36 +215,28 @@ class ArticleCreateView(FormView):
         content.save()
         return content
         
+    def validate_user_permissions(self, request):
+        try:
+            blog = self.get_blog()
+        except ObjectDoesNotExist:
+            raise Http404('Blog not found.')
+        return blog.user_can_create_article(request.user)
+        
     def form_valid(self, form):
         if self.show_preview():
             context = self.get_context_data(form=form, 
-                                            preview_content=form.article_start)
+                                            preview_start=form.article_start,
+                                            preview_end=form.article_end)
             return self.render_to_response(context)
         else:
             article = self.create_article(form)
             content = self.create_article_content(form, article)
             return super(ArticleCreateView, self).form_valid(form)
-            
-    def get(self, request, *args, **kwargs):
-        # TODO: verify user can create articles
-        return super(ArticleCreateView, self).get(request, *args, **kwargs)
-            
-    def post(self, request, *args, **kwargs):
-        # TODO: verify user can create articles
-        return super(ArticleCreateView, self).post(request, *args, **kwargs)
 
 
-class ArticleEditView(FormView):
+class ArticleEditView(ArticleFormView):
     form_class = forms.ArticleEditForm
     template_name = 'goblog/article_edit.html'
-    
-    def get_blogid(self):
-        return self.kwargs['blogid']
-        
-    def get_blog(self):
-        if not hasattr(self, '_blog'):
-            self._blog = models.Blog.objects.get(name=self.get_blogid())
-        return self._blog
     
     def get_editorid(self):
         return self.request.user.id
@@ -229,28 +251,18 @@ class ArticleEditView(FormView):
     
     def get_article(self):
         if not hasattr(self, '_article'):
-            self._article = models.Article.objects.select_related('content').get(id=self.get_articleid())
+            qs = models.Article.objects.select_related('content')
+            self._article = qs.get(id=self.get_articleid())
         return self._article
         
     def get_article_content(self):
         return self.get_article().content
-    
-    def get_success_url(self):
-        # TODO: make success URL redirect to article
-        return urlreverse('goblog-blog-main', kwargs={'blogid': self.get_blogid()})
-        
-    def show_preview(self):
-        return self.request.POST.get('submit', None) == 'Preview'
-        
-    def get_context_data(self, **kwargs):
-        context = super(ArticleEditView, self).get_context_data(**kwargs)
-        context['blog'] = self.get_blog()
-        return context
         
     def update_article(self, form):
         article = self.get_article()
         article.title = form.cleaned_data['title']
         article.compiler_name = form.cleaned_data['compiler_name']
+        article.published = form.cleaned_data['published']
         article.save()
         self._article = article
         return article
@@ -272,23 +284,56 @@ class ArticleEditView(FormView):
         edit.save()
         return edit
         
+    def get_context_data(self, **kwargs):
+        context = super(ArticleEditView, self).get_context_data(**kwargs)
+        context['article'] = self.get_article()
+        return context
+        
+    def get_form_kwargs(self):
+        kwargs = super(ArticleEditView, self).get_form_kwargs()
+        if self.request.method in ('GET',):
+            article = self.get_article()
+            tz = djtimezone.get_current_timezone()
+            published = article.published.astimezone(tz)
+            data = {
+                'title': article.title,
+                'published_0': published.date(), 
+                'published_1': published.timetz(),
+                'compiler_name': article.compiler_name,
+                'text': article.content.raw,
+            }
+            kwargs.update({
+                'data': data,
+            })
+        return kwargs
+        
+    def validate_user_permissions(self, request):
+        # TODO: Implement me
+        return True
+        
     def form_valid(self, form):
         if self.show_preview():
             context = self.get_context_data(form=form, 
-                                            preview_content=form.article_start)
+                                            preview_start=form.article_start,
+                                            preview_end=form.article_end)
             return self.render_to_response(context)
         else:
             article = self.update_article(form)
             content = self.update_article_content(form)
             edit = self.create_article_edit(form, article)
             return super(ArticleEditView, self).form_valid(form)
-            
-    def get(self, request, *args, **kwargs):
-        # TODO: verify user can edit this article
-        return super(ArticleEditView, self).get(request, *args, **kwargs)
-            
-    def post(self, request, *args, **kwargs):
-        # TODO: verify user can edit this article
-        return super(ArticleEditView, self).post(request, *args, **kwargs)
+
 
 #==============================================================================#
+def i18n_javascript(request):
+    # taken from django.contrib.admin.sites.AdminSite.i18n_javascript
+    if settings.USE_I18N:
+        from django.views.i18n import javascript_catalog
+    else:
+        from django.views.i18n import null_javascript_catalog as javascript_catalog
+    return javascript_catalog(request, packages=['django.conf', 'django.contrib.admin'])
+
+#==============================================================================#
+
+
+

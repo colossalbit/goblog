@@ -4,8 +4,23 @@
 <head>
     <title>{% block headtitle %}{% endblock headtitle %}</title>
     <link rel="stylesheet" type="text/css" href="{% static 'goblog/style.css' %}"/>
+    {# the following 'admin' CSS requires the admin to be an installed app #}
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}"/>
+    {% if form %}{{ form.media.css }}{% endif %}
     {% block css %}{% endblock css %}
+    
+    {# __admin_media_prefix__ needed for proper functioning of admin widgets #}
+    <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";</script>
+    <script type="text/javascript" src="{% url goblog-i18n-javascript %}"></script>
+    
+    {# the following 'admin' javascript requires the admin to be an installed app #}
+    <script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+    {% if form %}{{ form.media.js }}{% endif %}
+    
     {% block js %}{% endblock js %}
+    
 </head>
 <body>
 {% block body %}

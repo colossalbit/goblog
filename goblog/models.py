@@ -73,6 +73,10 @@ class Blog(models.Model):
         ##_check_read_only(self, ('name',))
         super(Blog, self).save(*args, **kwargs)
         
+    @models.permalink
+    def get_absolute_url(self):
+        return ('goblog-blog-main', (), {'blogid': self.name})
+        
     def user_can_create_article(self, user):
         if user.is_superuser:
             return True
@@ -128,6 +132,10 @@ class Article(models.Model):
     def save(self, *args, **kwargs):
         super(Article, self).save(*args, **kwargs)
         
+    @models.permalink
+    def get_absolute_url(self):
+        return ('goblog-article-view', (), {'blogid': self.blog_id, 'articleid': self.id})
+        
     def user_can_edit_article(self, user):
         if user.is_superuser:
             return True
@@ -176,8 +184,9 @@ class ArticleContent(models.Model):
         _check_read_only(self, ('article',))
         # set 'text_start' and 'text_end'
         if self.raw:
-            from .core.articlecompilers import compile
-            start, end = compile(self.article.compiler_name, self.raw)
+            from .core.articlecompilers import compile, resolve_article_compiler
+            dotted_name = resolve_article_compiler(self.article.compiler_name)
+            start, end = compile(dotted_name, self.raw)
             self.text_start = start
             self.text_end = end
         else:

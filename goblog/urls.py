@@ -23,6 +23,8 @@ urlpatterns = patterns('',
     (sub(r'^blogs/(?P<blogid>{BLOGID})/articles/(?P<articleid>{ARTICLEID})/$'), blogviews.ArticleView.as_view(), {}, 'goblog-article-view'),
     # blogs/BLOGID/articles/ARTICLEID/edit/
     (sub(r'^blogs/(?P<blogid>{BLOGID})/articles/(?P<articleid>{ARTICLEID})/edit/$'), blogviews.ArticleEditView.as_view(), {}, 'goblog-article-edit'),
+    
+    (r'^blogutil/jsi18n/$', blogviews.i18n_javascript, {}, 'goblog-i18n-javascript'),
 )
 
 #==============================================================================#

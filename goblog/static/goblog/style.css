@@ -76,3 +76,11 @@ h1, #menu, #breadcrumbs, .article-title, .article-info, #logininfo, #sidebar,
     list-style-type: none;
 }
 
+form p.datetime {
+    margin: 0;
+}
+
+th {
+    text-align: left;
+}
+

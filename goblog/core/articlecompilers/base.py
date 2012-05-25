@@ -2,7 +2,7 @@ import re
 
 from django.utils import html as djhtml
 
-from goblog import utils
+from goblog import utils, appsettings
 
 #==============================================================================#
 djbracemap = {
@@ -38,33 +38,33 @@ class ArticleCompiler(object):
         This calls the compile method and then adds the markup necessary to 
         load the goblog template tags.
         """
-        full, brief = self.split_brief(text)
-        full = self.compile(full)
-        brief = self.compile(brief)
+        text_start, text_end = self.split_brief(text)
+        text_start = self.compile(text_start)
+        text_end = self.compile(text_end)
         
         ##article_full, article_brief = self.decompose_compile_result(result)
-        full = self.prepend_load_goblog_tags(full)
-        if brief:
-            brief = self.prepend_load_goblog_tags(brief)
+        text_start = self.prepend_load_goblog_tags(text_start)
+        if text_end:
+            text_end = self.prepend_load_goblog_tags(text_end)
 
-        return full, brief
+        return text_start, text_end
         
     def decompose_compile_result(self, result):
-        article_brief = ''
+        text_end = ''
         if isinstance(result, (list, tuple)):
             if len(result) == 1:
-                article_full = result[0]
+                text_start = result[0]
             elif len(result) == 2:
-                article_full = result[0]
-                article_brief = result[1]
+                text_start = result[0]
+                text_end = result[1]
             else:
                 # TODO: Goblog-specific exception
                 m = ("Configuration error: unexpected result from article "
                      "compiler.")
                 raise RuntimeError(m)
         elif isinstance(result, basestring):
-            article_full = result
-        return article_full, article_brief
+            text_start = result
+        return text_start, text_end
         
     def compile(self, text):
         """Take the given text and return HTML suitable for rendering in a 
@@ -73,19 +73,23 @@ class ArticleCompiler(object):
         raise NotImplementedError()
         
     def split_brief(self, text):
-        """Splits the text into brief and full forms. The brief form contains 
-        the text up to an 'end brief' marker, while the full form contains all 
-        of the text except the 'end brief' marker.
+        """Splits the text into start and end parts. The start part contains 
+        the text up to an 'end brief' marker, while the end part contains the 
+        text following the 'end brief' marker.
         """
         parts = re_end_brief.split(text, maxsplit=1)
-        if len(parts) == 1:
-            brief = ''
-            full = parts[0]
-        else:
-            assert len(parts) == 2
-            brief = parts[0]
-            full = ''.join(parts)
-        return full, brief
+        text_start = parts[0]
+        text_end = ''
+        if len(parts) == 2:
+            text_end = parts[1]
+        # if len(parts) == 1:
+            # brief = ''
+            # text_start = parts[0]
+        # else:
+            # assert len(parts) == 2
+            # brief = parts[0]
+            # full = ''.join(parts)
+        return text_start, text_end
         
     def escape_braces(self, text):
         """Escapes braces that have significance in Django's templating system. 
@@ -120,6 +124,9 @@ class ArticleCompiler(object):
 
 
 #==============================================================================#
+def resolve_article_compiler(compiler_alias):
+    return appsettings.GOBLOG_ARTICLE_COMPILERS[compiler_alias]
+
 def compile(dotted_name, rawtext):
     CompilerClass = utils.load_class(dotted_name)
     if not issubclass(CompilerClass, ArticleCompiler):
