@@ -24,16 +24,12 @@
     </p>
     
     <div class="article-content">
-    {% if article.content.brief %}
-        {{ article.content.brief|safe }}
-    {% else %}
-        {{ article.content.full|safe }}
-    {% endif %}
+    {{ article.content.text_start|safe }}
     </div> <!-- div.article-content -->
     
-    {% if article.content.brief %}
+    {% if article.content.text_end %}
       <p class="article-read-more">
-        <a href="{% url article-view blogid=blog.name articleid=article.id %}">read more...</a>
+        <a href="{% url article-view blogid=blog.name articleid=article.id %}#read-more">read more...</a>
       </p>
     {% endif %}
     

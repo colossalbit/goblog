@@ -15,7 +15,9 @@
     {{ article.published }} {{ article.published|date:"e (\U\T\CO)" }}
   </p>
   <div class="article-content">
-    {{ article.content.full|safe }}
+    {{ article.content.text_start|safe }}
+    <div id="read-more"></div>
+    {{ article.content.text_end|safe }}
   </div> <!-- div.article-content -->
 </div> <!-- div.article -->
 {% endblock content %}

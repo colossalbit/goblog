@@ -178,8 +178,8 @@ class ArticleCreateView(FormView):
         contentargs = {
             'article': article,
             'raw': form.cleaned_data['text'],
-            'full': form.article_full,
-            'brief': form.article_brief,
+            'text_start': form.article_start,
+            'text_end': form.article_end,
         }
         content = models.ArticleContent(**contentargs)
         content.save()
@@ -188,7 +188,7 @@ class ArticleCreateView(FormView):
     def form_valid(self, form):
         if self.show_preview():
             context = self.get_context_data(form=form, 
-                                            preview_content=form.article_full)
+                                            preview_content=form.article_start)
             return self.render_to_response(context)
         else:
             article = self.create_article(form)
@@ -258,8 +258,8 @@ class ArticleEditView(FormView):
     def update_article_content(self, form):
         content = self.get_article_content()
         content.raw = form.cleaned_data['text']
-        content.full = form.article_full
-        content.brief = form.article_brief
+        content.text_start = form.article_start
+        content.text_end = form.article_end
         content.save()
         return content
         
@@ -275,7 +275,7 @@ class ArticleEditView(FormView):
     def form_valid(self, form):
         if self.show_preview():
             context = self.get_context_data(form=form, 
-                                            preview_content=form.article_full)
+                                            preview_content=form.article_start)
             return self.render_to_response(context)
         else:
             article = self.update_article(form)

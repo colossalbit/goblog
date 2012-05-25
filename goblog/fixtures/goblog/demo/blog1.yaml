@@ -18,8 +18,8 @@
   pk: 1
   fields:
     article: article1
-    brief: '<p>This is the brief.</p>'
-    full: '<p>This is the brief.</p><p>This is the content!</p>'
+    text_start: '<p>This is the brief.</p>'
+    text_end:   '<p>This is the content!</p>'
     raw: '<p>This is the brief.</p>{{ end brief }}<p>This is the content!</p>'
 
 # article2
@@ -37,8 +37,8 @@
   pk: 2
   fields:
     article: article2
-    brief: '<p>To brief or not to brief, that is the question.</p>'
-    full: '<p>To brief or not to brief, that is the question.</p><p>Insert another pseudo-Shakespeare quote here.</p>'
+    text_start: '<p>To brief or not to brief, that is the question.</p>'
+    text_end:   '<p>Insert another pseudo-Shakespeare quote here.</p>'
     raw: '<p>To brief or not to brief, that is the question.</p>{{ end brief }}<p>Insert another pseudo-Shakespeare quote here.</p>'
 
 # article3
@@ -56,8 +56,8 @@
   pk: 3
   fields:
     article: article3
-    brief: '<p>Batton down the hatches. Shivver me timbers.</p>'
-    full: "<p>Batton down the hatches. Shivver me timbers.</p><p>Yo ho ho and a bottle of rum. And he's the very model of a modern Major-General.</p>"
+    text_start: '<p>Batton down the hatches. Shivver me timbers.</p>'
+    text_end:   "<p>Yo ho ho and a bottle of rum. And he's the very model of a modern Major-General.</p>"
     raw: "<p>Batton down the hatches. Shivver me timbers.</p>{{ end brief }}<p>Yo ho ho and a bottle of rum. And he's the very model of a modern Major-General.</p>"
 
 

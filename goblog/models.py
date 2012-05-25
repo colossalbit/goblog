@@ -164,23 +164,25 @@ class ArticleContent(models.Model):
     article =       models.OneToOneField(Article, related_name='content', 
                                          editable=True)
     raw =           models.TextField()
-    full =          models.TextField(blank=True, editable=False)
+    text_start =    models.TextField(blank=True, editable=False)
+    text_end =      models.TextField(blank=True, editable=False)
+    ##full =          models.TextField(blank=True, editable=False)
     # The brief is shown on the front page and in other summaries. If blank, 
     # 'full' is used.
-    brief =         models.TextField(blank=True, editable=False)
+    ##brief =         models.TextField(blank=True, editable=False)
     
     def clean(self):
         super(ArticleContent, self).clean()
         _check_read_only(self, ('article',))
-        # set 'full' and 'brief'
+        # set 'text_start' and 'text_end'
         if self.raw:
             from .core.articlecompilers import compile
-            full, brief = compile(self.article.compiler_name, self.raw)
-            self.full = full
-            self.brief = brief
+            start, end = compile(self.article.compiler_name, self.raw)
+            self.text_start = start
+            self.text_end = end
         else:
-            self.full = ''
-            self.brief = ''
+            self.text_start = ''
+            self.text_end = ''
     
     def save(self, *args, **kwargs):
         super(ArticleContent, self).save(*args, **kwargs)

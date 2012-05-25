@@ -12,14 +12,14 @@ class ArticleFormBase(forms.Form):
                                 validators=[validators.validate_article_compiler])
     text = forms.CharField(widget=forms.Textarea)
     
-    ##full = forms.TextField(required=False, widget=forms.HiddenInput)
-    ##brief = forms.TextField(required=False, widget=forms.HiddenInput)
+    ##start = forms.TextField(required=False, widget=forms.HiddenInput)
+    ##end = forms.TextField(required=False, widget=forms.HiddenInput)
     
     def __init__(self, *args, **kwargs):
         self.do_compile = kwargs.pop('do_compile', True)
         super(ArticleFormBase, self).__init__(*args, **kwargs)
-        self.article_full = ''
-        self.article_brief = ''
+        self.article_start = ''
+        self.article_end = ''
         
     def clean_compiler_name(self):
         name = self.cleaned_data['compiler_name']
@@ -34,9 +34,9 @@ class ArticleFormBase(forms.Form):
             compiler_name = cleaned_data['compiler_name']
             from .core.articlecompilers import compile
             # TODO: translate compilation errors into ValidationErrors
-            full, brief = compile(compiler_name, raw)
-            self.article_full = full
-            self.article_brief = brief
+            start, end = compile(compiler_name, raw)
+            self.article_start = start
+            self.article_end = end
         return cleaned_data
 
 
