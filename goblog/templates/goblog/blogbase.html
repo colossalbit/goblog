@@ -33,6 +33,9 @@
 
 
 {% block sidebar %}
+<ul>
+    <li><a href="{% goblog_blogurl 'goblog-blog-main' blog.name %}">{{ blog.title }}</a></li>
+</ul>
 <h3>Archives</h3>
 <ul>
   {# temporarily stop conversion from UTC to locatime #}

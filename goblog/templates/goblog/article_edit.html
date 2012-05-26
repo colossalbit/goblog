@@ -13,6 +13,7 @@
 
 
 {% block content %}
+<p>Editing: <a href="{% goblog_blogurl 'goblog-article-view' blog.name articleid=article.id %}">{{ article.title }}</a></p>
 <p>This is going to be a cool article.</p>
 
 {% if preview_start %}
