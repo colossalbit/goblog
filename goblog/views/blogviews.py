@@ -17,65 +17,11 @@ from .. import models, forms
 
 #==============================================================================#
 class GoBlogMixin(object):
+    """Mixin for all GoBlog views."""
     now = None  # facilitates testing without regard to the current date
-    blogid = None
-    authorid = None
-    
-    recent_articles_size = 5
-    
-    def get_blogid(self):
-        return self.blogid
-    
-    def get_authorid(self):
-        return self.authorid
         
     def get_now(self):
         return self.now or djtimezone.now()
-        
-    def get_articles_queryset(self):
-        # articles must be published
-        # published date must be at or before now
-        now = self.get_now()
-        qs = models.Article.objects.exclude(published=None)
-        qs = qs.exclude(published__gt=now)
-        # articles must be part of the chosen blog
-        blogid = self.get_blogid()
-        if blogid:
-            qs = qs.filter(blog=blogid)
-        # articles must have selected author
-        authorid = self.get_authorid()
-        if authorid:
-            qs = qs.filter(author=authorid)
-        # articles must be sorted by published date
-        qs = qs.order_by('-published')
-        # TODO: articles must have chosen tag(s)
-        # TODO: articles must match search criteria
-        
-        return qs
-    
-    def get_archives_list(self):
-        qs = self.get_articles_queryset()
-        conn = connections[models.Article.objects.db]
-        qs = qs.extra(select={'published': 
-                              conn.ops.date_trunc_sql('month', 'published')})
-        qs = qs.values('published')
-        qs = qs.annotate(dcount=Count('published'))
-        # get the 'published' Field instance
-        pfield = models.Article._meta.get_field('published')
-        # Wrapping in generator function allows the results to be iterated over 
-        # multiple times
-        def _iter():
-            for obj in qs:
-                yield {
-                    # convert from string to datetime.datetime object
-                    'date':  pfield.to_python(obj['published']), 
-                    'count': obj['dcount']
-                }
-        return _iter
-        
-    def get_recent_articles_list(self):
-        qs = self.get_articles_queryset()[:self.recent_articles_size]
-        return qs
         
     def get_login_redirect_url(self):
         return self.request.path
@@ -96,17 +42,85 @@ class GoBlogMixin(object):
         return context
         
         
+class GoBlogBlogMixin(GoBlogMixin):
+    """Mixin for GoBlog views targeting a single blog."""
+    blogid = None
+    authorid = None
+    
+    recent_articles_size = 5
+    
+    def get_blogid(self):
+        return self.kwargs['blogid']
+    
+    def get_filter_blogid(self):
+        return self.get_blogid()
+    
+    def get_filter_authorid(self):
+        return self.authorid
+        
+    def get_blog_articles(self):
+        # articles must be published
+        # published date must be at or before now
+        now = self.get_now()
+        qs = models.Article.objects.exclude(published=None)
+        qs = qs.exclude(published__gt=now)
+        # articles must be part of the chosen blog
+        blogid = self.get_filter_blogid()
+        if blogid:
+            qs = qs.filter(blog=blogid)
+        # articles must have selected author
+        authorid = self.get_filter_authorid()
+        if authorid:
+            qs = qs.filter(author=authorid)
+        # articles must be sorted by published date
+        qs = qs.order_by('-published')
+        # TODO: articles must have chosen tag(s)
+        # TODO: articles must match search criteria
+        
+        return qs
+    
+    def get_archives_list(self):
+        qs = self.get_blog_articles()
+        conn = connections[models.Article.objects.db]
+        qs = qs.extra(select={'published': 
+                              conn.ops.date_trunc_sql('month', 'published')})
+        qs = qs.values('published')
+        qs = qs.annotate(dcount=Count('published'))
+        # get the 'published' Field instance
+        pfield = models.Article._meta.get_field('published')
+        # Wrapping in generator function allows the results to be iterated over 
+        # multiple times
+        def _iter():
+            for obj in qs:
+                yield {
+                    # convert from string to datetime.datetime object
+                    'date':  pfield.to_python(obj['published']), 
+                    'count': obj['dcount']
+                }
+        return _iter
+        
+    def get_recent_articles_list(self):
+        qs = self.get_blog_articles()[:self.recent_articles_size]
+        return qs
+        
+    def get_context_data(self, **kwargs):
+        context = super(GoBlogBlogMixin, self).get_context_data(**kwargs)
+        try:
+            context['blog'] = models.Blog.objects.get(name=self.get_blogid())
+        except ObjectDoesNotExist:
+            raise Http404('Blog not found.')
+        context['archives'] = self.get_archives_list()
+        context['recent_articles'] = self.get_recent_articles_list()
+        return context
+        
 #==============================================================================#
-class BlogView(GoBlogMixin, ListView):
+class BlogView(GoBlogBlogMixin, ListView):
     model = models.Article
     context_object_name = 'articles'
     template_name = 'goblog/blogmain.html'
     
-    def get_blogid(self):
-        return self.kwargs['blogid']
-        
     def get_queryset(self):
-        qs = self.get_articles_queryset()
+        qs = self.get_blog_articles()
         
         # As of Django 1.4, a bug prevents us from using select_related() and 
         # defer() in queries on the reverse OneToOne relationships.  Once 
@@ -118,24 +132,15 @@ class BlogView(GoBlogMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super(BlogView, self).get_context_data(**kwargs)
-        try:
-            context['blog'] = models.Blog.objects.get(name=self.get_blogid())
-        except ObjectDoesNotExist:
-            raise Http404('Blog not found.')
-        context['archives'] = self.get_archives_list()
-        context['recent_articles'] = self.get_recent_articles_list()
         return context
         
 
-class ArticleView(GoBlogMixin, DetailView):
+class ArticleView(GoBlogBlogMixin, DetailView):
     model = models.Article
     slug_field = 'id'
     slug_url_kwarg = 'articleid'
     context_object_name = 'article'
     template_name = 'goblog/article.html'
-    
-    def get_blogid(self):
-        return self.kwargs['blogid']
         
     def get_object(self, queryset=None):
         article = super(ArticleView, self).get_object(queryset=queryset)
@@ -148,10 +153,6 @@ class ArticleView(GoBlogMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         context = super(ArticleView, self).get_context_data(**kwargs)
-        try:
-            context['blog'] = models.Blog.objects.get(name=self.get_blogid())
-        except ObjectDoesNotExist:
-            raise Http404('Blog not found.')
         return context
     
 
@@ -163,11 +164,7 @@ class ArticlesView(RedirectView):
     
 
 #==============================================================================#
-class ArticleFormView(GoBlogMixin, FormView):
-        
-    def get_blogid(self):
-        return self.kwargs['blogid']
-        
+class ArticleFormView(GoBlogBlogMixin, FormView):
     def get_blog(self):
         if not hasattr(self, '_blog'):
             self._blog = models.Blog.objects.get(name=self.get_blogid())
@@ -186,7 +183,7 @@ class ArticleFormView(GoBlogMixin, FormView):
         
     def get_context_data(self, **kwargs):
         context = super(ArticleFormView, self).get_context_data(**kwargs)
-        context['blog'] = self.get_blog()
+        ##context['blog'] = self.get_blog()
         return context
             
     def get(self, request, *args, **kwargs):

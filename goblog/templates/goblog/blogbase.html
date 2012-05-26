@@ -1,5 +1,6 @@
 {% extends "goblog/base.html" %}
 {% load guardian_tags %}
+{% load tz %}
 
 
 {% block headtitle %}
@@ -28,6 +29,28 @@
 {% block title %}
 <h1>{{ blog.title }}</h1>
 {% endblock title %}
+
+
+{% block sidebar %}
+<h3>Archives</h3>
+<ul>
+  {# temporarily stop conversion from UTC to locatime #}
+  {% localtime off %}
+    {% for item in archives %}
+      <li><a href="TODO">{{ item.date|date:"M Y" }} ({{ item.count }})</a></li>
+    {% endfor %}
+  {% endlocaltime %}
+</ul>
+
+<h3>Recent Articles</h3>
+<ul>
+  {% for article in recent_articles %}
+    <li>
+      <a href="{% url goblog-article-view blogid=blog.name articleid=article.id %}">{{ article.title }}</a>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock sidebar %}
 
 
 {% block footerleft %}
