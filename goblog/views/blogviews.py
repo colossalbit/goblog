@@ -13,7 +13,7 @@ from django.db import connections
 from django.db.models import Count
 from django.conf import settings
 
-from .. import models, forms, appsettings
+from .. import models, forms, appsettings, utils
 
 #==============================================================================#
 class GoBlogMixin(object):
@@ -255,8 +255,10 @@ class ArticlesView(RedirectView):
 class ArticleFormView(FormView):
     def get_success_url(self):
         # TODO: make success URL redirect to article
-        return urlreverse('goblog-blog-main', 
-                          kwargs={'blogid': self.get_blogid()})
+        return utils.reverse_blog_url('goblog-blog-main', 
+                                      blogid=self.get_blogid())
+        ##return urlreverse('goblog-blog-main', 
+        ##                  kwargs={'blogid': self.get_blogid()})
         
     def get_logout_redirect_url(self):
         return self.get_blog().get_absolute_url()

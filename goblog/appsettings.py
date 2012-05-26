@@ -2,9 +2,8 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test import signals as test_signals
 
-## GOBLOG_TAGSPACE_DEFAULT = getattr(settings, 'GOBLOG_TAGSPACE_DEFAULT', 'shared')
-## # other values: 'shared', 'perblog', 'none'
 
+#==============================================================================#
 _DEFAULT_ARTICLE_COMPILERS = {
     u'basic':        u'goblog.core.articlecompilers.BasicArticleCompiler',
     u'cleanhtml':    u'goblog.core.articlecompilers.CleanHtmlArticleCompiler',
@@ -19,6 +18,7 @@ def _get_article_compiler_default(compilers):
     # arbitrary compiler
     return compilers.keys[0]
 
+#==============================================================================#
 def load_settings():
     # GOBLOG_DEFAULT_BLOG 
     GOBLOG_DEFAULT_BLOG = getattr(settings, 'GOBLOG_DEFAULT_BLOG', None)
@@ -49,12 +49,11 @@ test_signals.setting_changed.connect(on_test_settings_change)
             
 load_settings()
 
+#==============================================================================#
 BLOGSPACE_NAME_MAXLEN = 100
 BLOG_NAME_MAXLEN = 100
 ARTICLE_NAME_MAXLEN = 32  # UUID
 TAG_NAME_MAXLEN = 100
 ARTICLE_COMPILER_MAXLEN = 255
-##DEFAULT_BLOG_MARKER = ''
 
-##ARTICLE_COMPILER_DEFAULT = u'nohtml'
-
+#==============================================================================#

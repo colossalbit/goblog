@@ -144,6 +144,20 @@ class BlogView_TestCase(View_TestCaseBase):
         
 
 #==============================================================================#
+# def gburl(viewname, blogid, *args, **kwargs):
+    # viewname = 'goblog-' + viewname
+    # kwargs['blogid'] = blogid
+    # return urlreverse(viewname, args=args, kwargs=kwargs)
+    
+    # url = goblogurl('article-create', blogid=blogid)
+    # url = goblogurl('article-edit', blogid=blogid, articleid=articleid)
+    # url = goblogurl_defaultblog('article-edit', articleid=articleid)
+    
+# def goblogurl_defaultblog(viewname, *args, **kwargs):
+    # viewname = 'goblog-default-' + viewname
+    # return urlreverse(viewname, args=args, kwargs=kwargs)
+
+
 class DefaultBlogView_TestCase(View_TestCaseBase):
     fixtures = ['goblog/tests/superuser.yaml', 'goblog/tests/blog1.yaml']
     
@@ -180,24 +194,35 @@ class DefaultBlogView_TestCase(View_TestCaseBase):
         edit1url = urlreverse('goblog-article-edit', kwargs={'blogid': blogid, 
                                                 'articleid': 'blog1article1'})
         self.assertTrue(edit1url not in body)
+        edit1url = urlreverse('goblog-default-article-edit', 
+                              kwargs={'articleid': 'blog1article1'})
+        self.assertTrue(edit1url not in body)
+        
         edit2url = urlreverse('goblog-article-edit', kwargs={'blogid': blogid, 
                                                 'articleid': 'blog1article2'})
         self.assertTrue(edit2url not in body)
+        edit2url = urlreverse('goblog-default-article-edit', 
+                              kwargs={'articleid': 'blog1article2'})
+        self.assertTrue(edit2url not in body)
+        
         edit3url = urlreverse('goblog-article-edit', kwargs={'blogid': blogid, 
                                                 'articleid': 'blog1article3'})
         self.assertTrue(edit3url not in body)
+        edit3url = urlreverse('goblog-default-article-edit', 
+                              kwargs={'articleid': 'blog1article3'})
+        self.assertTrue(edit3url not in body)
         
         # links to published articles should appear
-        view2url = urlreverse('goblog-article-view', kwargs={'blogid': blogid, 
-                                                'articleid': 'blog1article2'})
+        view2url = urlreverse('goblog-default-article-view', 
+                              kwargs={'articleid': 'blog1article2'})
         self.assertTrue(view2url in body)
-        view3url = urlreverse('goblog-article-view', kwargs={'blogid': blogid, 
-                                                'articleid': 'blog1article3'})
+        view3url = urlreverse('goblog-default-article-view', 
+                              kwargs={'articleid': 'blog1article3'})
         self.assertTrue(view3url in body)
         
         # links to unpublished articles should *not* appear
-        view1url = urlreverse('goblog-article-view', kwargs={'blogid': blogid, 
-                                                'articleid': 'blog1article1'})
+        view1url = urlreverse('goblog-default-article-view', 
+                              kwargs={'articleid': 'blog1article1'})
         self.assertTrue(view1url not in body)
     
 

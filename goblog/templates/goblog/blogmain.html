@@ -8,13 +8,13 @@
   <div class="article">
     
     <h2 class="article-title">
-      <a href="{% url goblog-article-view blogid=blog.name articleid=article.id %}">{{ article.title }}</a>
+      <a href="{% goblog_blogurl 'goblog-article-view' blog.name articleid=article.id %}">{{ article.title }}</a>
     </h2>
     
     {% goblog_can_edit_article user article as "can_edit" %}
     {% if can_edit %}
       <p>
-        <a href="{% url goblog-article-edit blogid=blog.name articleid=article.id %}">Edit</a>
+        <a href="{% goblog_blogurl 'goblog-article-edit' blog.name articleid=article.id %}">Edit</a>
       </p>
     {% endif %}
     
@@ -28,7 +28,7 @@
     
     {% if article.content.text_end %}
       <p class="article-read-more">
-        <a href="{% url goblog-article-view blogid=blog.name articleid=article.id %}#read-more">read more...</a>
+        <a href="{% goblog_blogurl 'goblog-article-view' blog.name articleid=article.id %}#read-more">read more...</a>
       </p>
     {% endif %}
     
