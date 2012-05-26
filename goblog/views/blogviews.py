@@ -1,3 +1,5 @@
+import datetime
+
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect
 from django.utils import timezone as djtimezone
@@ -215,6 +217,42 @@ class BlogView(GoBlogBlogMixin, ListView):
         
     def check_page_exists(self, request):
         super(BlogView, self).check_page_exists(request)
+        if self.get_blogid() == appsettings.GOBLOG_DEFAULT_BLOG and self.kwargs['default_blog'] == False:
+            return urlreverse('goblog-default-blog-main')
+            
+
+class ArchiveView(GoBlogBlogMixin, ListView):
+    model = models.Article
+    context_object_name = 'articles'
+    template_name = 'goblog/archive.html'
+    
+    def get_queryset(self):
+        qs = self.get_blog_articles()
+        
+        # As of Django 1.4, a bug prevents us from using select_related() and 
+        # defer() in queries on the reverse OneToOne relationships.  Once 
+        # fixed, it would probably be a good idea to do something like the 
+        # following to get the article contents:
+        ##qs = qs.select_related('content').defer('content__raw')
+        qs = qs.select_related('content')
+        
+        year = int(self.kwargs['year'])
+        month = int(self.kwargs['month'])
+        qs = qs.filter(published__year=year, published__month=month)
+        return qs
+    
+    def get_context_data(self, **kwargs):
+        context = super(ArchiveView, self).get_context_data(**kwargs)
+        
+        year = int(self.kwargs['year'])
+        month = int(self.kwargs['month'])
+        tz = djtimezone.get_current_timezone()
+        archive_date = datetime.datetime(year, month, 1, tzinfo=tz)
+        context['archive_date'] = archive_date
+        return context
+        
+    def check_page_exists(self, request):
+        super(ArchiveView, self).check_page_exists(request)
         if self.get_blogid() == appsettings.GOBLOG_DEFAULT_BLOG and self.kwargs['default_blog'] == False:
             return urlreverse('goblog-default-blog-main')
         

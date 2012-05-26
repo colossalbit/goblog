@@ -30,6 +30,7 @@ def load_class(dotted_name):
 _viewnames = {
     # each tuple: (non-default name, default name)
     'goblog-blog-main': ('goblog-blog-main', 'goblog-default-blog-main'),
+    'goblog-archive-view': ('goblog-archive-view', 'goblog-default-archive-view'),
     'goblog-article-create': ('goblog-article-create', 'goblog-default-article-create'),
     'goblog-articles-view': ('goblog-articles-view', 'goblog-default-articles-view'),
     'goblog-article-view': ('goblog-article-view', 'goblog-default-article-view'),

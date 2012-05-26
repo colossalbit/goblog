@@ -41,7 +41,7 @@
   {# temporarily stop conversion from UTC to locatime #}
   {% localtime off %}
     {% for item in archives %}
-      <li><a href="TODO">{{ item.date|date:"M Y" }} ({{ item.count }})</a></li>
+      <li><a href="{% goblog_blogurl 'goblog-archive-view' blog.name year=item.date.year|stringformat:'04d' month=item.date.month|stringformat:'02d' %}">{{ item.date|date:"M Y" }} ({{ item.count }})</a></li>
     {% endfor %}
   {% endlocaltime %}
 </ul>
