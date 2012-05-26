@@ -3,7 +3,8 @@
 import sys
 import os.path
 
-GOBLOG_PYPATH = os.path.join(os.path.dirname(__file__),'..','..','..')
+PROJDIR = os.path.abspath(os.path.dirname(__file__))
+GOBLOG_PYPATH = os.path.abspath(os.path.join(PROJDIR,'..','..','..'))
 sys.path.append(GOBLOG_PYPATH)
 
 DEBUG = True
@@ -122,6 +123,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    os.path.join(PROJDIR, 'templates').replace('\\','/'),
 )
 
 AUTHENTICATION_BACKENDS = (

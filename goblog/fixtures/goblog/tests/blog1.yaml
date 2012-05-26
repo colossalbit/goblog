@@ -1,0 +1,65 @@
+- model: goblog.blog
+  pk: blog1
+  fields:
+    title: Test Blog 1
+
+# article1
+- model: goblog.article
+  pk: blog1article1
+  fields:
+    blog: blog1
+    title: Title 1
+    author: 100
+    created:   !!str '2012-05-01 10:00:00+00:00'
+    published: null
+    compiler_name: cleanhtml
+  
+- model: goblog.articlecontent
+  pk: 1
+  fields:
+    article: blog1article1
+    text_start: '<p>Brief 1</p>'
+    text_end:   '<p>Content 1</p>'
+    raw: '<p>Brief 1</p>{{ end brief }}<p>Content 1</p>'
+
+# article2
+- model: goblog.article
+  pk: blog1article2
+  fields:
+    blog: blog1
+    title: Title 2
+    author: 100 #superuser
+    created:   !!str '2012-05-05 22:00:00+00:00'
+    published: !!str '2012-05-05 22:00:00+00:00'
+    compiler_name: cleanhtml
+  
+- model: goblog.articlecontent
+  pk: 2
+  fields:
+    article: blog1article2
+    text_start: '<p>Brief 2</p>'
+    text_end:   '<p>Content 2</p>'
+    raw: '<p>Brief 2</p>{{ end brief }}<p>Content 2</p>'
+
+# article3
+- model: goblog.article
+  pk: blog1article3
+  fields:
+    blog: blog1
+    title: Title 3
+    author: 100
+    created:   !!str '2012-05-08 09:00:00+00:00'
+    published: !!str '2012-05-08 09:00:00+00:00'
+    compiler_name: cleanhtml
+  
+- model: goblog.articlecontent
+  pk: 3
+  fields:
+    article: blog1article3
+    text_start: '<p>Brief 3</p>'
+    text_end:   "<p>Content 3</p>"
+    raw: "<p>Brief 3</p>{{ end brief }}<p>Content 3</p>"
+
+
+
+

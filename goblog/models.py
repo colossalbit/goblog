@@ -144,6 +144,9 @@ class Article(models.Model):
         elif user.has_perm('goblog.change_article', self):
             return True
         return False
+        
+    def user_can_see_unpublished_article(self, user):
+        return self.user_can_edit_article(user)
     
     
 class ArticleEdit(models.Model):

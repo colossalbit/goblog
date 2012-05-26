@@ -28,10 +28,13 @@ class GoBlogMixin(object):
     def get_authorid(self):
         return self.authorid
         
+    def get_now(self):
+        return self.now or djtimezone.now()
+        
     def get_articles_queryset(self):
         # articles must be published
         # published date must be at or before now
-        now = self.now or djtimezone.now()
+        now = self.get_now()
         qs = models.Article.objects.exclude(published=None)
         qs = qs.exclude(published__gt=now)
         # articles must be part of the chosen blog
@@ -115,8 +118,7 @@ class BlogView(GoBlogMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(BlogView, self).get_context_data(**kwargs)
         try:
-            context['blog'] = models.Blog.objects.get(
-                                                    name=self.kwargs['blogid'])
+            context['blog'] = models.Blog.objects.get(name=self.get_blogid())
         except ObjectDoesNotExist:
             raise Http404('Blog not found.')
         context['archives'] = self.get_archives_list()
@@ -131,9 +133,24 @@ class ArticleView(GoBlogMixin, DetailView):
     context_object_name = 'article'
     template_name = 'goblog/article.html'
     
+    def get_blogid(self):
+        return self.kwargs['blogid']
+        
+    def get_object(self, queryset=None):
+        article = super(ArticleView, self).get_object(queryset=queryset)
+        now = self.get_now()
+        # Permissions required to see unpublished articles
+        if article.published is None or now < article.published:
+            if not article.user_can_see_unpublished_article(self.request.user):
+                raise Http404('Article not found.')  # Should this be 403?
+        return article
+    
     def get_context_data(self, **kwargs):
         context = super(ArticleView, self).get_context_data(**kwargs)
-        context['blog'] = context['article'].blog
+        try:
+            context['blog'] = models.Blog.objects.get(name=self.get_blogid())
+        except ObjectDoesNotExist:
+            raise Http404('Blog not found.')
         return context
     
 
@@ -293,12 +310,19 @@ class ArticleEditView(ArticleFormView):
         kwargs = super(ArticleEditView, self).get_form_kwargs()
         if self.request.method in ('GET',):
             article = self.get_article()
-            tz = djtimezone.get_current_timezone()
-            published = article.published.astimezone(tz)
+            # 'published' can be None
+            if article.published:
+                tz = djtimezone.get_current_timezone()
+                published = article.published.astimezone(tz)
+                published_date = published.date()
+                published_time = published.timetz()
+            else:
+                published_date = None
+                published_time = None
             data = {
                 'title': article.title,
-                'published_0': published.date(), 
-                'published_1': published.timetz(),
+                'published_0': published_date, 
+                'published_1': published_time,
                 'compiler_name': article.compiler_name,
                 'text': article.content.raw,
             }
@@ -308,8 +332,11 @@ class ArticleEditView(ArticleFormView):
         return kwargs
         
     def validate_user_permissions(self, request):
-        # TODO: Implement me
-        return True
+        try:
+            article = self.get_article()
+        except ObjectDoesNotExist:
+            raise Http404('Article not found.')
+        return article.user_can_edit_article(request.user)
         
     def form_valid(self, form):
         if self.show_preview():

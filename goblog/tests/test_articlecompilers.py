@@ -12,9 +12,9 @@ class ArticleCompiler_TestCase(base.TestCaseBase):
         self.assertEqual((s, ''), compiler.split_brief(s))
         
         s = 'the brief {{ end brief }} and the rest'
-        b = 'the brief '
-        f = 'the brief  and the rest'
-        self.assertEqual((f, b), compiler.split_brief(s))
+        p1 = 'the brief '
+        p2 = ' and the rest'
+        self.assertEqual((p1, p2), compiler.split_brief(s))
     
     
 #==============================================================================#
