@@ -1,6 +1,7 @@
 # Django settings for testsite1 project.
 
 import sys
+import os
 import os.path
 
 PROJDIR = os.path.abspath(os.path.dirname(__file__))
@@ -31,6 +32,13 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
+
+if os.environ.get('GOBLOG_TEST_DATABASE') == 'postgresql':
+    DATABASES['default']['ENGINE'] =    'django.db.backends.postgresql_psycopg2'
+    DATABASES['default']['NAME'] =      'goblog_testsite1'
+    DATABASES['default']['TEST_NAME'] = 'goblog_testsite1_test'
+    DATABASES['default']['USER'] =      os.environ.get('USER', 'postgres')
+    
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
