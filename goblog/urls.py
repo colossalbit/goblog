@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 
 from .views import blogviews
+##from .appsettings import DEFAULT_BLOG_MARKER
 
 #==============================================================================#
 IDENT = r'[\w\d\-_]+'
@@ -15,12 +16,17 @@ def sub(urlfmt):
 #==============================================================================#
 urlpatterns = patterns('',
     ##(sub(r'^blogs/(?P<blogid>{BLOGID})/$'), blogviews.BlogMainView.as_view(), {}, 'blog-main'),
-    # TODO: blog/
-    # TODO: blog/new_article/
+    # blog/
+    (sub(r'^blog/$'), blogviews.BlogView.as_view(), {'default_blog': True}, 'goblog-default-blog-main'),
+    # blog/new_article/
+    (sub(r'^blog/new_article/$'), blogviews.ArticleCreateView.as_view(), {'default_blog': True}, 'goblog-default-article-create'),
     # TODO: blog/archive/YYYY/MM/
-    # TODO: blog/articles/
-    # TODO: blog/articles/ARTICLEID/
-    # TODO: blog/articles/ARTICLEID/edit/
+    # blog/articles/
+    (sub(r'^blog/articles/$'), blogviews.ArticlesView.as_view(), {'default_blog': True}, 'goblog-default-articles-view'),
+    # blog/articles/ARTICLEID/
+    (sub(r'^blog/articles/(?P<articleid>{ARTICLEID})/$'), blogviews.ArticleView.as_view(), {'default_blog': True}, 'goblog-default-article-view'),
+    # blog/articles/ARTICLEID/edit/
+    (sub(r'^blog/articles/(?P<articleid>{ARTICLEID})/edit/$'), blogviews.ArticleEditView.as_view(), {'default_blog': True}, 'goblog-default-article-edit'),
     
     # blogs/BLOGID/
     (sub(r'^blogs/(?P<blogid>{BLOGID})/$'), blogviews.BlogView.as_view(), {}, 'goblog-blog-main'),

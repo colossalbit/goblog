@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.http import Http404, HttpResponseForbidden
+from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect
 from django.utils import timezone as djtimezone
 from django.core.urlresolvers import reverse as urlreverse
 from django.contrib.auth.models import User
@@ -13,7 +13,7 @@ from django.db import connections
 from django.db.models import Count
 from django.conf import settings
 
-from .. import models, forms
+from .. import models, forms, appsettings
 
 #==============================================================================#
 class GoBlogMixin(object):
@@ -41,6 +41,34 @@ class GoBlogMixin(object):
         context['LOGOUT_REDIRECT_URL'] = self.get_logout_redirect_url()
         return context
         
+    def validate_user_permissions(self, request):
+        """Should return True if the user has permission to view this page, and 
+        False otherwise."""
+        return True
+        
+    def check_page_exists(self, request):
+        """Should raise an Http404 exception if the page doesn't exist. Can 
+        trigger a redirect by returning the URL to redirect to."""
+        pass
+            
+    def get(self, request, *args, **kwargs):
+        redirect = self.check_page_exists(request)
+        if redirect:
+            return HttpResponseRedirect(redirect)
+        if not self.validate_user_permissions(request):
+            return HttpResponseForbidden()
+        else:
+            return super(GoBlogMixin, self).get(request, *args, **kwargs)
+            
+    def post(self, request, *args, **kwargs):
+        redirect = self.check_page_exists(request)
+        if redirect:
+            return HttpResponseRedirect(redirect)
+        if not self.validate_user_permissions(request):
+            return HttpResponseForbidden()
+        else:
+            return super(GoBlogMixin, self).post(request, *args, **kwargs)
+        
         
 class GoBlogBlogMixin(GoBlogMixin):
     """Mixin for GoBlog views targeting a single blog."""
@@ -49,11 +77,26 @@ class GoBlogBlogMixin(GoBlogMixin):
     
     recent_articles_size = 5
     
+    def dispatch(self, request, *args, **kwargs):
+        kwargs.setdefault('default_blog', False)
+        return super(GoBlogBlogMixin, self).dispatch(request, *args, **kwargs)
+    
     def get_blogid(self):
+        try:
+            return self.kwargs['blogid']
+        except KeyError:
+            if not self.kwargs['default_blog']:
+                raise
+            self.kwargs['blogid'] = appsettings.GOBLOG_DEFAULT_BLOG
         return self.kwargs['blogid']
     
     def get_filter_blogid(self):
         return self.get_blogid()
+        
+    def get_blog(self):
+        if not hasattr(self, '_blog'):
+            self._blog = models.Blog.objects.get(name=self.get_blogid())
+        return self._blog
     
     def get_filter_authorid(self):
         return self.authorid
@@ -106,13 +149,49 @@ class GoBlogBlogMixin(GoBlogMixin):
     def get_context_data(self, **kwargs):
         context = super(GoBlogBlogMixin, self).get_context_data(**kwargs)
         try:
-            context['blog'] = models.Blog.objects.get(name=self.get_blogid())
+            context['blog'] = self.get_blog()
         except ObjectDoesNotExist:
             raise Http404('Blog not found.')
         context['archives'] = self.get_archives_list()
         context['recent_articles'] = self.get_recent_articles_list()
         return context
         
+    def check_page_exists(self, request):
+        if self.get_blogid() is None:
+            raise Http404('Blog not found.')
+        try:
+            blog = self.get_blog()
+        except ObjectDoesNotExist:
+            raise Http404('Blog not found.')
+        
+        
+class GoBlogArticleMixin(GoBlogBlogMixin):
+    def get_articleid(self):
+        return self.kwargs['articleid']
+    
+    def get_article(self):
+        if not hasattr(self, '_article'):
+            qs = models.Article.objects.select_related('content')
+            self._article = qs.get(id=self.get_articleid())
+        return self._article
+        
+    def validate_user_permissions(self, request):
+        article = self.get_article()
+        now = self.get_now()
+        # Permissions required to see unpublished articles
+        if article.published is None or now < article.published:
+            if not article.user_can_see_unpublished_article(request.user):
+                return False
+        return True
+        
+    def check_page_exists(self, request):
+        super(GoBlogArticleMixin, self).check_page_exists(request)
+        try:
+            article = self.get_article()
+        except ObjectDoesNotExist:
+            raise Http404('Article not found.')
+        
+
 #==============================================================================#
 class BlogView(GoBlogBlogMixin, ListView):
     model = models.Article
@@ -134,42 +213,46 @@ class BlogView(GoBlogBlogMixin, ListView):
         context = super(BlogView, self).get_context_data(**kwargs)
         return context
         
+    def check_page_exists(self, request):
+        super(BlogView, self).check_page_exists(request)
+        if self.get_blogid() == appsettings.GOBLOG_DEFAULT_BLOG and self.kwargs['default_blog'] == False:
+            return urlreverse('goblog-default-blog-main')
+        
 
-class ArticleView(GoBlogBlogMixin, DetailView):
+class ArticleView(GoBlogArticleMixin, DetailView):
     model = models.Article
     slug_field = 'id'
     slug_url_kwarg = 'articleid'
     context_object_name = 'article'
     template_name = 'goblog/article.html'
-        
+    
     def get_object(self, queryset=None):
-        article = super(ArticleView, self).get_object(queryset=queryset)
-        now = self.get_now()
-        # Permissions required to see unpublished articles
-        if article.published is None or now < article.published:
-            if not article.user_can_see_unpublished_article(self.request.user):
-                raise Http404('Article not found.')  # Should this be 403?
-        return article
+        return self.get_article()
     
     def get_context_data(self, **kwargs):
         context = super(ArticleView, self).get_context_data(**kwargs)
         return context
+        
+    def check_page_exists(self, request):
+        super(ArticleView, self).check_page_exists(request)
+        if self.get_blogid() == appsettings.GOBLOG_DEFAULT_BLOG and self.kwargs['default_blog'] == False:
+            return urlreverse('goblog-default-article-view', 
+                              kwargs={'articleid': self.get_articleid()})
     
 
+#==============================================================================#
 class ArticlesView(RedirectView):
     permanent = True
     
     def get_redirect_url(self, **kwargs):
-        return urlreverse('goblog-blog-main', kwargs={'blogid': kwargs['blogid']})
+        if self.kwargs.get('default_blog', False) == True:
+            return urlreverse('goblog-default-blog-main')
+        else:
+            return urlreverse('goblog-blog-main', kwargs={'blogid': self.kwargs['blogid']})
     
 
 #==============================================================================#
-class ArticleFormView(GoBlogBlogMixin, FormView):
-    def get_blog(self):
-        if not hasattr(self, '_blog'):
-            self._blog = models.Blog.objects.get(name=self.get_blogid())
-        return self._blog
-    
+class ArticleFormView(FormView):
     def get_success_url(self):
         # TODO: make success URL redirect to article
         return urlreverse('goblog-blog-main', 
@@ -185,21 +268,9 @@ class ArticleFormView(GoBlogBlogMixin, FormView):
         context = super(ArticleFormView, self).get_context_data(**kwargs)
         ##context['blog'] = self.get_blog()
         return context
-            
-    def get(self, request, *args, **kwargs):
-        if not self.validate_user_permissions(request):
-            return HttpResponseForbidden()
-        else:
-            return super(ArticleFormView, self).get(request, *args, **kwargs)
-            
-    def post(self, request, *args, **kwargs):
-        if not self.validate_user_permissions(request):
-            raise HttpResponseForbidden()
-        else:
-            return super(ArticleFormView, self).post(request, *args, **kwargs)
 
 
-class ArticleCreateView(ArticleFormView):
+class ArticleCreateView(GoBlogBlogMixin, ArticleFormView):
     form_class = forms.ArticleCreateForm
     template_name = 'goblog/article_create.html'
     
@@ -239,11 +310,7 @@ class ArticleCreateView(ArticleFormView):
         return content
         
     def validate_user_permissions(self, request):
-        try:
-            blog = self.get_blog()
-        except ObjectDoesNotExist:
-            raise Http404('Blog not found.')
-        return blog.user_can_create_article(request.user)
+        return self.get_blog().user_can_create_article(request.user)
         
     def form_valid(self, form):
         if self.show_preview():
@@ -257,7 +324,7 @@ class ArticleCreateView(ArticleFormView):
             return super(ArticleCreateView, self).form_valid(form)
 
 
-class ArticleEditView(ArticleFormView):
+class ArticleEditView(GoBlogArticleMixin, ArticleFormView):
     form_class = forms.ArticleEditForm
     template_name = 'goblog/article_edit.html'
     
@@ -268,15 +335,6 @@ class ArticleEditView(ArticleFormView):
         if not hasattr(self, '_editor'):
             self._editor = User.objects.get(id=self.get_editorid())
         return self._editor
-    
-    def get_articleid(self):
-        return self.kwargs['articleid']
-    
-    def get_article(self):
-        if not hasattr(self, '_article'):
-            qs = models.Article.objects.select_related('content')
-            self._article = qs.get(id=self.get_articleid())
-        return self._article
         
     def get_article_content(self):
         return self.get_article().content
@@ -338,11 +396,7 @@ class ArticleEditView(ArticleFormView):
         return kwargs
         
     def validate_user_permissions(self, request):
-        try:
-            article = self.get_article()
-        except ObjectDoesNotExist:
-            raise Http404('Article not found.')
-        return article.user_can_edit_article(request.user)
+        return self.get_article().user_can_edit_article(request.user)
         
     def form_valid(self, form):
         if self.show_preview():

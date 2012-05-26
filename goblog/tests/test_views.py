@@ -4,6 +4,8 @@ import datetime
 from django.core.urlresolvers import reverse as urlreverse
 from django.utils import timezone as djtimezone
 
+from django.test.utils import override_settings
+
 from goblog.views import blogviews
 from . import base
 
@@ -130,6 +132,74 @@ class BlogView_TestCase(View_TestCaseBase):
         body = response.content
         self.assertEqual(404, response.status_code)
         
+    @override_settings(GOBLOG_DEFAULT_BLOG='blog1')
+    def test_default_blog(self):
+        blogid = 'blog1'
+        url = urlreverse('goblog-blog-main', kwargs={'blogid': blogid})
+        defaulturl = urlreverse('goblog-default-blog-main')
+        response = self.client.get(url, follow=True)
+        chain = response.redirect_chain
+        self.assertEqual(1, len(chain))
+        self.assertEqual(('http://testserver'+defaulturl, 302), chain[0])
+        
+
+#==============================================================================#
+class DefaultBlogView_TestCase(View_TestCaseBase):
+    fixtures = ['goblog/tests/superuser.yaml', 'goblog/tests/blog1.yaml']
+    
+    def test_no_default_blog(self):
+        url = urlreverse('goblog-default-blog-main')
+        response = self.client.get(url)
+        self.assertEqual(404, response.status_code)
+        
+    @override_settings(GOBLOG_DEFAULT_BLOG='blog1')
+    def test_basic(self):
+        blogid = 'blog1'
+        url = urlreverse('goblog-default-blog-main')
+        response = self.client.get(url)
+        context = response.context
+        body = response.content
+        self.assertEqual(200, response.status_code)
+        self.assertTrue('LOGIN_URL' in context)
+        self.assertTrue('LOGOUT_URL' in context)
+        self.assertTrue('LOGIN_REDIRECT_URL' in context)
+        self.assertTrue('LOGOUT_REDIRECT_URL' in context)
+        
+        # anonymous user, so login link should be available
+        self.assertTrue(context['LOGIN_URL'] in body)
+        # anonymous user, so no logout link should be available
+        self.assertTrue(context['LOGOUT_URL'] not in body)
+        self.assertEqual(url, context['LOGIN_REDIRECT_URL'])
+        
+        # create article link should not appear
+        createurl = urlreverse('goblog-article-create', 
+                               kwargs={'blogid': blogid})
+        self.assertTrue(createurl not in body)
+        
+        # no edit links should appear
+        edit1url = urlreverse('goblog-article-edit', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article1'})
+        self.assertTrue(edit1url not in body)
+        edit2url = urlreverse('goblog-article-edit', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article2'})
+        self.assertTrue(edit2url not in body)
+        edit3url = urlreverse('goblog-article-edit', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article3'})
+        self.assertTrue(edit3url not in body)
+        
+        # links to published articles should appear
+        view2url = urlreverse('goblog-article-view', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article2'})
+        self.assertTrue(view2url in body)
+        view3url = urlreverse('goblog-article-view', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article3'})
+        self.assertTrue(view3url in body)
+        
+        # links to unpublished articles should *not* appear
+        view1url = urlreverse('goblog-article-view', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article1'})
+        self.assertTrue(view1url not in body)
+    
 
 #==============================================================================#
 class ArticlesView_TestCase(View_TestCaseBase):
@@ -139,6 +209,16 @@ class ArticlesView_TestCase(View_TestCaseBase):
         blogid = 'blog1'
         url = urlreverse('goblog-articles-view', kwargs={'blogid': blogid})
         blogurl = urlreverse('goblog-blog-main', kwargs={'blogid': blogid})
+        response = self.client.get(url, follow=True)
+        chain = response.redirect_chain
+        self.assertEqual(1, len(chain))
+        self.assertEqual(('http://testserver'+blogurl, 301), chain[0])
+        
+    @override_settings(GOBLOG_DEFAULT_BLOG='blog1')
+    def test_default_blog(self):
+        blogid = 'blog1'
+        url = urlreverse('goblog-default-articles-view')
+        blogurl = urlreverse('goblog-default-blog-main')
         response = self.client.get(url, follow=True)
         chain = response.redirect_chain
         self.assertEqual(1, len(chain))
@@ -179,7 +259,7 @@ class ArticleView_TestCase(View_TestCaseBase):
         response = self.client.get(url)
         context = response.context
         body = response.content
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(403, response.status_code)
     
     def test_super_user_and_unpublished_article(self):
         blogid = 'blog1'
@@ -222,6 +302,20 @@ class ArticleView_TestCase(View_TestCaseBase):
         context = response.context
         body = response.content
         self.assertEqual(404, response.status_code)
+        
+    @override_settings(GOBLOG_DEFAULT_BLOG='blog1')
+    def test_default_blog(self):
+        # check that this redirects to /blog/articles/ARTICLEID/
+        blogid = 'blog1'
+        articleid = 'blog1article2'
+        url = urlreverse('goblog-article-view', kwargs={'blogid': blogid, 
+                                                        'articleid': articleid})
+        defaulturl = urlreverse('goblog-default-article-view', 
+                                kwargs={'articleid': articleid})
+        response = self.client.get(url, follow=True)
+        chain = response.redirect_chain
+        self.assertEqual(1, len(chain))
+        self.assertEqual(('http://testserver'+defaulturl, 302), chain[0])
         
 
 #==============================================================================#
