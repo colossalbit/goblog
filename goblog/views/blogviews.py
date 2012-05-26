@@ -217,8 +217,9 @@ class ArticleCreateView(ArticleFormView):
     def create_article(self, form):
         import uuid
         blog = self.get_blog()
+        id = models.create_article_id_from_title(form.cleaned_data['title'])
         articleargs = {
-            'id': uuid.uuid4().hex,
+            'id': id,
             'blog': blog,
             'author': self.get_author(),
             'title': form.cleaned_data['title'],

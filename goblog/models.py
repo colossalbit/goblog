@@ -1,4 +1,6 @@
 import datetime
+import re
+import random
 
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
@@ -147,6 +149,32 @@ class Article(models.Model):
         
     def user_can_see_unpublished_article(self, user):
         return self.user_can_edit_article(user)
+
+
+def create_article_id_from_title(title):
+    goodchars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
+    badchars = r'[^{0}]'.format(goodchars.replace('-',r'\-'))
+    ws = r'\s+'
+    id = re.sub(ws, '-', title)
+    id = re.sub(badchars, '', id)
+    id = re.sub('--+', '-', id)
+    id = id[:appsettings.ARTICLE_NAME_MAXLEN]
+    if len(id) < 8:
+        xtra = 8 - len(id)
+        tail = ''.join(random.choice(goodchars) for i in xrange(xtra))
+        id = ''.join((id, tail))
+    baseid = id
+    tail = ''
+    while Article.objects.filter(id=id).exists():
+        tail = tail + random.choice(goodchars)
+        ##overage = appsettings.ARTICLE_NAME_MAXLEN - (len(baseid) + len(tail))
+        basemax = appsettings.ARTICLE_NAME_MAXLEN - len(tail)
+        baseid = baseid[:basemax]  # ensure baseid + tail won't be too long
+        ## if overage > 0:
+        ##     baseid = baseid[:len(baseid)-overage]
+        id = baseid + tail
+        assert len(id) <= appsettings.ARTICLE_NAME_MAXLEN
+    return id
     
     
 class ArticleEdit(models.Model):

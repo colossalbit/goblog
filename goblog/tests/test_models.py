@@ -61,3 +61,28 @@ class Article_TestCase(base.DBTestCaseBase):
         
 
 #==============================================================================#
+class create_article_id_from_title_TestCase(base.TestCaseBase):
+    fixtures = ['goblog/tests/superuser.yaml', 'goblog/tests/blog1.yaml']
+    
+    def test_basic(self):
+        r = models.create_article_id_from_title('abcdefgh')
+        self.assertEqual('abcdefgh', r)
+        
+        r = models.create_article_id_from_title('this is a title')
+        self.assertEqual('this-is-a-title', r)
+        
+        r = models.create_article_id_from_title('title with    long whitespace')
+        self.assertEqual('title-with-long-whitespace', r)
+        
+        r = models.create_article_id_from_title('bad$%*^!=chars')
+        self.assertEqual('badchars', r)
+        
+        r = models.create_article_id_from_title('bad $%*^!= chars')
+        self.assertEqual('bad-chars', r)
+        
+    def test_duplicate(self):
+        r = models.create_article_id_from_title('blog1article1')
+        self.assertEqual(len('blog1article1')+1, len(r))
+        self.assertTrue(r.startswith('blog1article1'))
+
+#==============================================================================#
