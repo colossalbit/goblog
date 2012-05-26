@@ -35,7 +35,7 @@ urlpatterns = patterns('',
     # blog/archive/YYYY/MM/
     (sub(r'^blog/archive/(?P<year>{YEAR})/(?P<month>{MONTH})/$'), 
         blogviews.ArchiveView.as_view(), {'default_blog': True}, 
-        'goblog-archive-view'),
+        'goblog-default-archive-view'),
         
     # blog/articles/
     (sub(r'^blog/articles/$'), 

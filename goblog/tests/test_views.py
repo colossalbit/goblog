@@ -227,6 +227,88 @@ class DefaultBlogView_TestCase(View_TestCaseBase):
     
 
 #==============================================================================#
+class ArchiveView_TestCase(View_TestCaseBase):
+    fixtures = ['goblog/tests/superuser.yaml', 'goblog/tests/blog1.yaml']
+    
+    def setUp(self):
+        super(ArchiveView_TestCase, self).setUp()
+        # Block all 'recent article' links. Otherwise when searching for 
+        # genuine article links we may find the recent links instead.
+        self._old_recent_articles_size = blogviews.GoBlogBlogMixin.recent_articles_size
+        blogviews.GoBlogBlogMixin.recent_articles_size = 0
+        
+    def tearDown(self):
+        blogviews.GoBlogBlogMixin.recent_articles_size = self._old_recent_articles_size
+        super(ArchiveView_TestCase, self).tearDown()
+    
+    def test_anonymous_user(self):
+        blogid = 'blog1'
+        year = '2012'
+        month = '05'
+        url = urlreverse('goblog-archive-view', 
+                         kwargs={'blogid': blogid, 'year': year, 'month': month})
+        response = self.client.get(url)
+        context = response.context
+        body = response.content
+        self.assertEqual(200, response.status_code)
+        self.assertTrue('LOGIN_URL' in context)
+        self.assertTrue('LOGOUT_URL' in context)
+        self.assertTrue('LOGIN_REDIRECT_URL' in context)
+        self.assertTrue('LOGOUT_REDIRECT_URL' in context)
+        
+        # anonymous user, so login link should be available
+        self.assertTrue(context['LOGIN_URL'] in body)
+        # anonymous user, so logout link should *not* be available
+        self.assertTrue(context['LOGOUT_URL'] not in body)
+        self.assertEqual(url, context['LOGIN_REDIRECT_URL'])
+        
+        # create article link should not appear
+        createurl = urlreverse('goblog-article-create', 
+                               kwargs={'blogid': blogid})
+        self.assertTrue(createurl not in body)
+        
+        # no edit links should appear
+        edit1url = urlreverse('goblog-article-edit', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article1'})
+        self.assertTrue(edit1url not in body)
+        edit2url = urlreverse('goblog-article-edit', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article2'})
+        self.assertTrue(edit2url not in body)
+        edit3url = urlreverse('goblog-article-edit', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article3'})
+        self.assertTrue(edit3url not in body)
+        
+        # links to published articles in timeframe should appear
+        view3url = urlreverse('goblog-article-view', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article3'})
+        self.assertTrue(view3url in body)
+        
+        # links to published articles outside of timeframe should *not* appear
+        view2url = urlreverse('goblog-article-view', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article2'})
+        self.assertTrue(view2url not in body)
+        
+        # links to unpublished articles should *not* appear
+        view1url = urlreverse('goblog-article-view', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article1'})
+        self.assertTrue(view1url not in body)
+        
+    @override_settings(GOBLOG_DEFAULT_BLOG='blog1')
+    def test_default_blog(self):
+        blogid = 'blog1'
+        year = '2012'
+        month = '05'
+        url = urlreverse('goblog-archive-view', 
+                         kwargs={'blogid': blogid, 'year': year, 'month': month})
+        defaulturl = urlreverse('goblog-default-archive-view', 
+                                kwargs={'year': year, 'month': month})
+        response = self.client.get(url, follow=True)
+        chain = response.redirect_chain
+        self.assertEqual(1, len(chain))
+        self.assertEqual(('http://testserver'+defaulturl, 302), chain[0])
+
+
+#==============================================================================#
 class ArticlesView_TestCase(View_TestCaseBase):
     fixtures = ['goblog/tests/superuser.yaml', 'goblog/tests/blog1.yaml']
     

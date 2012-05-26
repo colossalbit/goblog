@@ -253,8 +253,12 @@ class ArchiveView(GoBlogBlogMixin, ListView):
         
     def check_page_exists(self, request):
         super(ArchiveView, self).check_page_exists(request)
+        if not (1 <= int(self.kwargs['month']) <= 12):
+            raise Http404('Blog not found.')  # Or... 'Archive not found.'?
         if self.get_blogid() == appsettings.GOBLOG_DEFAULT_BLOG and self.kwargs['default_blog'] == False:
-            return urlreverse('goblog-default-blog-main')
+            return urlreverse('goblog-default-archive-view', 
+                              kwargs={'year': self.kwargs['year'], 
+                                      'month': self.kwargs['month']})
         
 
 class ArticleView(GoBlogArticleMixin, DetailView):

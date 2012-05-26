@@ -5,8 +5,8 @@
     first_name: Super
     last_name: User
     email: superuser@example.com
-    date_joined: !!str '2012-05-01 00:00:00Z'
-    last_login:  !!str '2012-05-01 00:00:00Z'
+    date_joined: !!str '2012-01-01 00:00:00Z'
+    last_login:  !!str '2012-01-01 00:00:00Z'
     user_permissions: []
     groups: []
     is_active: true

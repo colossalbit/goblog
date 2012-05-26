@@ -29,8 +29,8 @@
     blog: blog1
     title: Title 2
     author: 100 #superuser
-    created:   !!str '2012-05-05 22:00:00+00:00'
-    published: !!str '2012-05-05 22:00:00+00:00'
+    created:   !!str '2012-03-10 22:00:00+00:00'
+    published: !!str '2012-03-10 22:00:00+00:00'
     compiler_name: cleanhtml
   
 - model: goblog.articlecontent
