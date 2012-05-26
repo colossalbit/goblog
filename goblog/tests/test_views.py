@@ -132,6 +132,20 @@ class BlogView_TestCase(View_TestCaseBase):
         
 
 #==============================================================================#
+class ArticlesView_TestCase(View_TestCaseBase):
+    fixtures = ['goblog/tests/superuser.yaml', 'goblog/tests/blog1.yaml']
+    
+    def test_basic(self):
+        blogid = 'blog1'
+        url = urlreverse('goblog-articles-view', kwargs={'blogid': blogid})
+        blogurl = urlreverse('goblog-blog-main', kwargs={'blogid': blogid})
+        response = self.client.get(url, follow=True)
+        chain = response.redirect_chain
+        self.assertEqual(1, len(chain))
+        self.assertEqual(('http://testserver'+blogurl, 301), chain[0])
+
+
+#==============================================================================#
 class ArticleView_TestCase(View_TestCaseBase):
     fixtures = ['goblog/tests/superuser.yaml', 'goblog/tests/blog1.yaml']
     

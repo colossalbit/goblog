@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView
+from django.views.generic.base import RedirectView
 
 from django.db import connections
 from django.db.models import Count
@@ -152,6 +153,13 @@ class ArticleView(GoBlogMixin, DetailView):
         except ObjectDoesNotExist:
             raise Http404('Blog not found.')
         return context
+    
+
+class ArticlesView(RedirectView):
+    permanent = True
+    
+    def get_redirect_url(self, **kwargs):
+        return urlreverse('goblog-blog-main', kwargs={'blogid': kwargs['blogid']})
     
 
 #==============================================================================#
