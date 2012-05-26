@@ -1,4 +1,5 @@
 {% extends "goblog/blogbase.html" %}
+{% load goblog_tags %}
 
 
 {% block headtitle %}
@@ -10,15 +11,26 @@
 <p>Isn't this a cool article?</p>
 
 <div class="article">
+    
+  {% goblog_can_edit_article user article as "can_edit" %}
+  {% if can_edit %}
+    <p class="article-edit">
+      <a href="{% goblog_blogurl 'goblog-article-edit' blog.name articleid=article.id %}">Edit</a>
+    </p>
+  {% endif %}
+
   <h2 class="article-title">{{ article.title }}</h2>
+  
   <p class="article-info">by <a href="TODO">{{ article.author.username }}</a> -- 
     {{ article.published }} {{ article.published|date:"e (\U\T\CO)" }}
   </p>
+  
   <div class="article-content">
     {{ article.content.text_start|safe }}
     <div id="read-more"></div>
     {{ article.content.text_end|safe }}
   </div> <!-- div.article-content -->
+  
 </div> <!-- div.article -->
 {% endblock content %}
 

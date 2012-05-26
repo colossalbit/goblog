@@ -7,16 +7,16 @@
 {% for article in articles %}
   <div class="article">
     
-    <h2 class="article-title">
-      <a href="{% goblog_blogurl 'goblog-article-view' blog.name articleid=article.id %}">{{ article.title }}</a>
-    </h2>
-    
     {% goblog_can_edit_article user article as "can_edit" %}
     {% if can_edit %}
-      <p>
+      <p class="article-edit">
         <a href="{% goblog_blogurl 'goblog-article-edit' blog.name articleid=article.id %}">Edit</a>
       </p>
     {% endif %}
+    
+    <h2 class="article-title">
+      <a href="{% goblog_blogurl 'goblog-article-view' blog.name articleid=article.id %}">{{ article.title }}</a>
+    </h2>
     
     <p class="article-info">by <a href="TODO">{{ article.author.username }}</a> -- 
       {{ article.published }} {{ article.published|date:"e (\U\T\CO)" }}
@@ -28,7 +28,7 @@
     
     {% if article.content.text_end %}
       <p class="article-read-more">
-        <a href="{% goblog_blogurl 'goblog-article-view' blog.name articleid=article.id %}#read-more">read more...</a>
+        <a href="{% goblog_blogurl 'goblog-article-view' blog.name articleid=article.id %}#read-more">[ read more... ]</a>
       </p>
     {% endif %}
     

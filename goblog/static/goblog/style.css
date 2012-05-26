@@ -57,10 +57,15 @@ body {
     float: right;
 }
 
+.article-edit {
+    float: right;
+    margin-top: 0.3em;
+}
+
 /* fonts */
 
-h1, #menu, #breadcrumbs, .article-title, .article-info, #logininfo, #sidebar, 
-#footerleft, #footerright, .page-subtitle 
+h1, #menu, #breadcrumbs, #logininfo, #sidebar, #footerleft, #footerright, .page-subtitle,
+.article-title, .article-info, .article-edit, .article-read-more
 {
     font-family: "Corbel", sans-serif;
 }
