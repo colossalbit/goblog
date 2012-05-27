@@ -8,18 +8,10 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'BlogSpace'
-        db.create_table('goblog_blogspace', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-        ))
-        db.send_create_signal('goblog', ['BlogSpace'])
-
         # Adding model 'Blog'
         db.create_table('goblog_blog', (
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100, primary_key=True)),
+            ('name', self.gf('django.db.models.fields.SlugField')(max_length=100, primary_key=True)),
             ('title', self.gf('django.db.models.fields.TextField')()),
-            ('blogspace', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['goblog.BlogSpace'])),
         ))
         db.send_create_signal('goblog', ['Blog'])
 
@@ -29,8 +21,9 @@ class Migration(SchemaMigration):
             ('blog', self.gf('django.db.models.fields.related.ForeignKey')(related_name='articles', to=orm['goblog.Blog'])),
             ('author', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['auth.User'])),
             ('title', self.gf('django.db.models.fields.TextField')()),
-            ('published', self.gf('django.db.models.fields.DateTimeField')(default=None, null=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
+            ('published', self.gf('django.db.models.fields.DateTimeField')(default=None, null=True, blank=True)),
+            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2012, 5, 26, 0, 0))),
+            ('compiler_name', self.gf('django.db.models.fields.CharField')(default='cleanhtml', max_length=255)),
         ))
         db.send_create_signal('goblog', ['Article'])
 
@@ -39,23 +32,21 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('article', self.gf('django.db.models.fields.related.ForeignKey')(related_name='edits', to=orm['goblog.Article'])),
             ('editor', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', to=orm['auth.User'])),
-            ('date', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
+            ('date', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2012, 5, 26, 0, 0))),
         ))
         db.send_create_signal('goblog', ['ArticleEdit'])
 
         # Adding model 'ArticleContent'
         db.create_table('goblog_articlecontent', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('article', self.gf('django.db.models.fields.related.OneToOneField')(related_name='content', unique=True, to=orm['goblog.Article'])),
+            ('article', self.gf('django.db.models.fields.related.OneToOneField')(related_name='content', unique=True, primary_key=True, to=orm['goblog.Article'])),
             ('raw', self.gf('django.db.models.fields.TextField')()),
-            ('full', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('text_start', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('text_end', self.gf('django.db.models.fields.TextField')(blank=True)),
         ))
         db.send_create_signal('goblog', ['ArticleContent'])
 
-    def backwards(self, orm):
-        # Deleting model 'BlogSpace'
-        db.delete_table('goblog_blogspace')
 
+    def backwards(self, orm):
         # Deleting model 'Blog'
         db.delete_table('goblog_blog')
 
@@ -67,6 +58,7 @@ class Migration(SchemaMigration):
 
         # Deleting model 'ArticleContent'
         db.delete_table('goblog_articlecontent')
+
 
     models = {
         'auth.group': {
@@ -109,35 +101,30 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Article'},
             'author': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['auth.User']"}),
             'blog': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'articles'", 'to': "orm['goblog.Blog']"}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'compiler_name': ('django.db.models.fields.CharField', [], {'default': "'cleanhtml'", 'max_length': '255'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2012, 5, 26, 0, 0)'}),
             'id': ('django.db.models.fields.CharField', [], {'max_length': '32', 'primary_key': 'True'}),
-            'published': ('django.db.models.fields.DateTimeField', [], {'default': 'None', 'null': 'True'}),
+            'published': ('django.db.models.fields.DateTimeField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.TextField', [], {})
         },
         'goblog.articlecontent': {
             'Meta': {'object_name': 'ArticleContent'},
-            'article': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'content'", 'unique': 'True', 'to': "orm['goblog.Article']"}),
-            'full': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'raw': ('django.db.models.fields.TextField', [], {})
+            'article': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'content'", 'unique': 'True', 'primary_key': 'True', 'to': "orm['goblog.Article']"}),
+            'raw': ('django.db.models.fields.TextField', [], {}),
+            'text_end': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'text_start': ('django.db.models.fields.TextField', [], {'blank': 'True'})
         },
         'goblog.articleedit': {
             'Meta': {'object_name': 'ArticleEdit'},
             'article': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'edits'", 'to': "orm['goblog.Article']"}),
-            'date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2012, 5, 26, 0, 0)'}),
             'editor': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['auth.User']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
         'goblog.blog': {
             'Meta': {'object_name': 'Blog'},
-            'blogspace': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['goblog.BlogSpace']"}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'primary_key': 'True'}),
+            'name': ('django.db.models.fields.SlugField', [], {'max_length': '100', 'primary_key': 'True'}),
             'title': ('django.db.models.fields.TextField', [], {})
-        },
-        'goblog.blogspace': {
-            'Meta': {'object_name': 'BlogSpace'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         }
     }
 
