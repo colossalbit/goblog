@@ -15,9 +15,8 @@
     compiler_name: cleanhtml
   
 - model: goblog.articlecontent
-  pk: 201
+  pk: article2_1
   fields:
-    article: article2_1
     text_start: |
         <p>
         Alice was beginning to get very tired of sitting by her sister on the
@@ -127,9 +126,8 @@
     compiler_name: cleanhtml
   
 - model: goblog.articlecontent
-  pk: 202
+  pk: article2_2
   fields:
-    article: article2_2
     text_start: |
         <p>
         It was the White Rabbit, trotting slowly back again, and looking
@@ -243,9 +241,8 @@
     compiler_name: cleanhtml
   
 - model: goblog.articlecontent
-  pk: 203
+  pk: article2_3
   fields:
-    article: article2_3
     text_start: |
         <p>
         It sounded an excellent plan, no doubt, and very neatly and simply

@@ -201,7 +201,7 @@ class ArticleContent(models.Model):
     'Article' itself, but instead are separated for performance reasons.
     """
     article =       models.OneToOneField(Article, related_name='content', 
-                                         editable=True)
+                                         editable=True, primary_key=True)
     raw =           models.TextField()
     text_start =    models.TextField(blank=True, editable=False)
     text_end =      models.TextField(blank=True, editable=False)

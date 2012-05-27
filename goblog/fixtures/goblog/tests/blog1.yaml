@@ -15,9 +15,8 @@
     compiler_name: cleanhtml
   
 - model: goblog.articlecontent
-  pk: 1
+  pk: blog1article1
   fields:
-    article: blog1article1
     text_start: '<p>Brief 1</p>'
     text_end:   '<p>Content 1</p>'
     raw: '<p>Brief 1</p>{{ end brief }}<p>Content 1</p>'
@@ -34,9 +33,8 @@
     compiler_name: cleanhtml
   
 - model: goblog.articlecontent
-  pk: 2
+  pk: blog1article2
   fields:
-    article: blog1article2
     text_start: '<p>Brief 2</p>'
     text_end:   '<p>Content 2</p>'
     raw: '<p>Brief 2</p>{{ end brief }}<p>Content 2</p>'
@@ -53,9 +51,8 @@
     compiler_name: cleanhtml
   
 - model: goblog.articlecontent
-  pk: 3
+  pk: blog1article3
   fields:
-    article: blog1article3
     text_start: '<p>Brief 3</p>'
     text_end:   "<p>Content 3</p>"
     raw: "<p>Brief 3</p>{{ end brief }}<p>Content 3</p>"
