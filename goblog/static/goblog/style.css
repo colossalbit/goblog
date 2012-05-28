@@ -5,17 +5,24 @@ body {
     margin: 0 auto;
 }
 
+th {
+    text-align: left;
+}
+
 #header {
     overflow: auto;
-    padding: 0.5em;
+    padding: 0.5em 1.0em;
 }
 
 #logininfo-wrapper {
     float: right;
 }
 
-#title-wrapper {
-    
+#title-wrapper {   
+}
+
+#title {
+    margin: 0em;
 }
 
 #main {
@@ -31,7 +38,7 @@ body {
 
 #content {
     margin-top: 1em;
-    padding: 0 1em 0 0.5em;
+    padding: 0 1em 0 1em;
 }
 
 #sidebar-wrapper {
@@ -41,7 +48,7 @@ body {
 
 #sidebar {
     margin-top: 1em;
-    padding: 0 0.5em 0 1em;
+    padding: 0 1em 0 1em;
 }
 
 #footer {
@@ -57,9 +64,72 @@ body {
     float: right;
 }
 
+#title h1 {
+    margin: 0;
+}
+
 .article-edit {
     float: right;
     margin-top: 0.3em;
+}
+
+.article-content {
+    margin-left: 1em;
+    line-height: 1.4em;
+}
+
+.article-title {
+    margin-bottom: 0em;
+}
+
+.article-info {
+    margin-top: 0.3em;
+    font-size: 0.8em;
+}
+
+.page-title {
+    margin: 0;
+}
+.page-subtitle {
+    margin: 0;
+}
+
+form p.datetime {
+    margin: 0;
+}
+
+#logininfo ul {
+    list-style-type: none;
+    margin: 0;
+    padding-left: 0;
+    font-size: 0.8em;
+}
+
+#sidebar ul {
+    list-style-type: none;
+    padding-left: 2em;
+    font-size: 0.8em;
+}
+
+#sidebar li + li {
+    margin-top: 0.3em;
+}
+
+#sidebar li {
+    text-indent: -1em;
+}
+
+#sidebar h3 {
+    font-size: 1.0em;
+    padding: 0 0.5em;
+}
+
+#sidebar h3 + ul {
+    margin-top: 0;
+}
+
+#sidebar ul + h3 {
+    margin-bottom: 0;
 }
 
 /* fonts */
@@ -75,17 +145,49 @@ h1, #menu, #breadcrumbs, #logininfo, #sidebar, #footerleft, #footerright, .page-
     font-size: 1.1em;
 }
 
-/* formatting */
-
-#logininfo ul {
-    list-style-type: none;
+/* colors and borders */
+#header, #footer-wrapper {
+    background: #dddddd;
+}
+#header {
+    border-bottom-left-radius: 1.0em;
+    border-bottom-right-radius: 1.0em;
+}
+#footer-wrapper {
+    border-top-left-radius: 1.0em;
+    border-top-right-radius: 1.0em;
+}
+#main {
+}
+#content-wrapper {
+    border-right: 1px solid #dddddd;
+}
+/*
+:link {
+    color: #cc3333;
+}
+:visited {
+    color: #551a8b;
+}*/
+.page-title {
+    color: #000000;
+}
+.page-subtitle {
+    color: #555555;
+}
+.article-info {
+    color: #555555;
+}
+.article-content {
+    color: #000000;
+}
+#sidebar h3 {
+    background: #dddddd;
+    color: #000000;
+    border-radius: 0.8em;
+}
+.article + .article {
+    border-top: solid 1px #bbbbbb;
 }
 
-form p.datetime {
-    margin: 0;
-}
-
-th {
-    text-align: left;
-}
 

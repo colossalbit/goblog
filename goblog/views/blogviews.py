@@ -16,14 +16,18 @@ from django.db.models import Count
 from django.conf import settings
 
 from .. import models, forms, appsettings, utils
+from ..core import theming
 
 #==============================================================================#
 class GoBlogMixin(object):
     """Mixin for all GoBlog views."""
     now = None  # facilitates testing without regard to the current date
-        
+    
     def get_now(self):
         return self.now or djtimezone.now()
+    
+    def get_theme(self):
+        return theming.gettheme(appsettings.GOBLOG_DEFAULT_THEME)
         
     def get_login_redirect_url(self):
         return self.request.path
@@ -41,6 +45,7 @@ class GoBlogMixin(object):
         context['LOGOUT_URL'] = settings.LOGOUT_URL
         context['LOGIN_REDIRECT_URL'] = self.get_login_redirect_url()
         context['LOGOUT_REDIRECT_URL'] = self.get_logout_redirect_url()
+        context['theme'] = self.get_theme()
         return context
         
     def validate_user_permissions(self, request):

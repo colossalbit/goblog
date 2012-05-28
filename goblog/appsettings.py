@@ -37,6 +37,9 @@ def load_settings():
 
     ARTICLE_COMPILER_CHOICES = tuple((k,k) for k in sorted(GOBLOG_ARTICLE_COMPILERS.keys()))
     
+    # GOBLOG_DEFAULT_THEME
+    GOBLOG_DEFAULT_THEME = getattr(settings, 'GOBLOG_DEFAULT_THEME', 'goblog.core.theming.Theme')
+    
     # load names into the module-level namespace
     for k,v in locals().iteritems():
         if k.upper() == k and not k.startswith('_'):
