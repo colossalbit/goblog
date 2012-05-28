@@ -38,21 +38,29 @@
 </ul>
 <h3>Archives</h3>
 <ul>
-  {# temporarily stop conversion from UTC to locatime #}
-  {% localtime off %}
-    {% for item in archives %}
-      <li><a href="{% goblog_blogurl 'goblog-archive-view' blog.name year=item.date.year|stringformat:'04d' month=item.date.month|stringformat:'02d' %}">{{ item.date|date:"M Y" }} ({{ item.count }})</a></li>
-    {% endfor %}
-  {% endlocaltime %}
+  {% if archives.count %}
+      {# temporarily stop conversion from UTC to locatime #}
+      {% localtime off %}
+        {% for item in archives %}
+          <li><a href="{% goblog_blogurl 'goblog-archive-view' blog.name year=item.date.year|stringformat:'04d' month=item.date.month|stringformat:'02d' %}">{{ item.date|date:"M Y" }} ({{ item.count }})</a></li>
+        {% endfor %}
+      {% endlocaltime %}
+  {% else %}
+    <li>None</li>
+  {% endif %}
 </ul>
 
 <h3>Recent Articles</h3>
 <ul>
-  {% for article in recent_articles %}
-    <li>
-      <a href="{% goblog_blogurl 'goblog-article-view' blog.name articleid=article.id %}">{{ article.title }}</a>
-    </li>
-  {% endfor %}
+  {% if archives.count %}
+      {% for article in recent_articles %}
+        <li>
+          <a href="{% goblog_blogurl 'goblog-article-view' blog.name articleid=article.id %}">{{ article.title }}</a>
+        </li>
+      {% endfor %}
+  {% else %}
+    <li>None</li>
+  {% endif %}
 </ul>
 {% endblock sidebar %}
 

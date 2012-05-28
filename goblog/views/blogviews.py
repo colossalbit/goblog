@@ -57,7 +57,7 @@ class GoBlogMixin(object):
         """Should raise an Http404 exception if the page doesn't exist. Can 
         trigger a redirect by returning the URL to redirect to."""
         pass
-            
+        
     def get(self, request, *args, **kwargs):
         redirect = self.check_page_exists(request)
         if redirect:
@@ -75,6 +75,34 @@ class GoBlogMixin(object):
             return HttpResponseForbidden()
         else:
             return super(GoBlogMixin, self).post(request, *args, **kwargs)
+            
+            
+class ArchiveList(object):
+    """Lazy-evaluated list for the blog archive."""
+    def __init__(self, qs):
+        self.qs = qs
+        self._seq = None
+        self.pubfield = models.Article._meta.get_field('published')
+        
+    @property
+    def seq(self):
+        if self._seq is None:
+            def make_obj(obj):
+                return {
+                    'date':  self.pubfield.to_python(obj['published']), 
+                    'count': obj['dcount'],
+                }
+            self._seq = [make_obj(obj) for obj in self.qs]
+        return self._seq
+        
+    def __iter__(self):
+        return iter(self.seq)
+        
+    def __len__(self):
+        return len(self.seq)
+        
+    def count(self):
+        return len(self.seq)
         
         
 class GoBlogBlogMixin(GoBlogMixin):
@@ -136,18 +164,22 @@ class GoBlogBlogMixin(GoBlogMixin):
                               conn.ops.date_trunc_sql('month', 'published')})
         qs = qs.values('published')
         qs = qs.annotate(dcount=Count('published'))
-        # get the 'published' Field instance
-        pfield = models.Article._meta.get_field('published')
-        # Wrapping in generator function allows the results to be iterated over 
-        # multiple times
-        def _iter():
-            for obj in qs:
-                yield {
-                    # convert from string to datetime.datetime object
-                    'date':  pfield.to_python(obj['published']), 
-                    'count': obj['dcount']
-                }
-        return _iter
+        return ArchiveList(qs)
+        
+        # # get the 'published' Field instance
+        # pfield = models.Article._meta.get_field('published')
+        
+
+        # # Wrapping in generator function allows the results to be iterated over 
+        # # multiple times
+        # def _iter():
+            # for obj in qs:
+                # yield {
+                    # # convert from string to datetime.datetime object
+                    # 'date':  pfield.to_python(obj['published']), 
+                    # 'count': obj['dcount']
+                # }
+        # return _iter
         
     def get_recent_articles_list(self):
         qs = self.get_blog_articles()[:self.recent_articles_size]
