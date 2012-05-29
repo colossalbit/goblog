@@ -10,6 +10,9 @@
 {% block content %}
 <p>Isn't this a cool article?</p>
 
+{% include "goblog/include/article.html" with render_full_article="true" %}
+
+{% comment %}
 <div class="article">
     
   {% goblog_can_edit_article user article as "can_edit" %}
@@ -32,5 +35,6 @@
   </div> <!-- div.article-content -->
   
 </div> <!-- div.article -->
+{% endcomment %}
 {% endblock content %}
 

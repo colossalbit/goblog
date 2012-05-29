@@ -17,7 +17,7 @@ class ArticleFormBase(forms.Form):
                             validators=[validators.validate_article_compiler],
                             widget=forms.Select(attrs={}))
                             
-    text = forms.CharField(widget=forms.Textarea(attrs={'cols': '90', 'rows': '30'}))
+    text = forms.CharField(widget=forms.Textarea(attrs={'cols': '60', 'rows': '30'}))
     
     ##start = forms.TextField(required=False, widget=forms.HiddenInput)
     ##end = forms.TextField(required=False, widget=forms.HiddenInput)

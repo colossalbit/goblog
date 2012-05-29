@@ -8,7 +8,7 @@
 
 
 {% block title %}
-<h1>{{ blog.title }}: New Article</h1>
+<h1 class="page-title">{{ blog.title }}: New Article</h1>
 {% endblock title %}
 
 
@@ -29,7 +29,7 @@
 <div>
   <form action="{% goblog_blogurl 'goblog-article-create' blog.name %}" method="post">
     {% csrf_token %}
-    <table>
+    <table id="article-create-table">
       <tr>
         <th>Title:</th>
         <td>{{ form.title }}</td>

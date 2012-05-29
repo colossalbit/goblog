@@ -5,6 +5,9 @@
 <p>Welcome to the blog!</p>
 
 {% for article in articles %}
+  {% include "goblog/include/article.html" %}
+  
+  {% comment %}
   <div class="article">
     
     <div class="article-header">
@@ -35,6 +38,7 @@
     {% endif %}
     
   </div> <!-- div.article -->
+  {% endcomment %}
 {% endfor %}
 {% endblock content %}
 

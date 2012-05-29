@@ -6,6 +6,9 @@
 <p>Articles from {{ archive_date|date:"F Y" }}.</p>
 
 {% for article in articles %}
+  {% include "goblog/include/article.html" %}
+  
+  {% comment %}
   <div class="article">
     
     {% goblog_can_edit_article user article as "can_edit" %}
@@ -34,6 +37,9 @@
     {% endif %}
     
   </div> <!-- div.article -->
+  {% endcomment %}
+  
+  
 {% endfor %}
 {% endblock content %}
 
