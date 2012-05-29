@@ -1,0 +1,41 @@
+{% load goblog_tags %}
+
+<div class="article">
+  
+  <div class="article-header">
+    {% goblog_can_edit_article user article as "can_edit" %}
+    {% if can_edit %}
+      <p class="article-edit">
+        <a href="{% goblog_blogurl 'goblog-article-edit' blog.name articleid=article.id %}">Edit</a>
+      </p>
+    {% endif %}
+  
+    <h2 class="article-title">
+      <a href="{% goblog_blogurl 'goblog-article-view' blog.name articleid=article.id %}">{{ article.title }}</a>
+    </h2>
+  
+    <p class="article-info">by <a href="TODO">{{ article.author.username }}</a> -- 
+      {{ article.published }} {{ article.published|date:"e (\U\T\CO)" }}
+    </p>
+  </div>
+  
+  
+  
+  <div class="article-content">
+    {{ article.content.text_start|safe }}
+    {% if render_full_article %}
+      <div id="read-more"></div>
+      {{ article.content.text_end|safe }}
+    {% endif %}
+  </div> <!-- div.article-content -->
+    
+  {% if not render_full_article %}
+    {% if article.content.text_end %}
+      <p class="article-read-more">
+        <a href="{% goblog_blogurl 'goblog-article-view' blog.name articleid=article.id %}#read-more">[ read more... ]</a>
+      </p>
+    {% endif %}
+  {% endif %}
+  
+</div> <!-- div.article -->
+
