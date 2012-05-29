@@ -1,8 +1,10 @@
 import datetime
+import time
 
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect
 from django.utils import timezone as djtimezone
+from django.utils.http import http_date
 from django.core.urlresolvers import reverse as urlreverse
 from django.contrib.auth.models import User
 # views:
@@ -10,6 +12,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView
 from django.views.generic.base import RedirectView
+from django.views.decorators.cache import cache_control
 
 from django.db import connections
 from django.db.models import Count
@@ -493,13 +496,20 @@ class ArticleEditView(GoBlogArticleMixin, ArticleFormView):
 
 
 #==============================================================================#
+##@cache_control(max_age=60*5)
+##@cache_control(public=True, max_age=60*5)
 def i18n_javascript(request):
     # taken from django.contrib.admin.sites.AdminSite.i18n_javascript
     if settings.USE_I18N:
         from django.views.i18n import javascript_catalog
     else:
         from django.views.i18n import null_javascript_catalog as javascript_catalog
-    return javascript_catalog(request, packages=['django.conf', 'django.contrib.admin'])
+    response = javascript_catalog(request, packages=['django.conf', 'django.contrib.admin'])
+    response['Content-Type'] = 'application/javascript'
+    ##expires = datetime.datetime.now() + datetime.timedelta(minutes=5)
+    ts = time.time() + 60 * 60 * 24  # 24 hours
+    response['Expires'] = http_date(ts)
+    return response
 
 #==============================================================================#
 

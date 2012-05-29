@@ -121,31 +121,51 @@ form p.datetime {
     margin: 0 0.3em;
 }
 
+.gadget {
+    margin: 0;
+}
+
+.gadget + .gadget {
+    margin-top: 1em;
+}
+
+.gadget-header {
+    margin-bottom: 0;
+    /*margin-bottom: 0.4em;*/
+}
+
+.gadget-body {
+    padding-top: 0.4em;
+}
+
 #sidebar ul {
     list-style-type: none;
-    padding-left: 2em;
+    /*padding-left: 1em;*/
+    padding: 0;
     font-size: 0.8em;
+    margin-top: 0;
 }
 
 #sidebar li + li {
-    margin-top: 0.3em;
+    /*padding-top: 0.3em;*/
 }
 
 #sidebar li {
+    /*padding: 0.2em 0.5em 0.2em 2em;*/
+    padding: 0;
+    /*cursor: pointer;*/
+}
+
+#sidebar li > a {
+    padding: 0.2em 0.5em 0.2em 2em;
     text-indent: -1em;
+    display: block;
 }
 
 #sidebar h3 {
     font-size: 1.0em;
     padding: 0 0.5em;
-}
-
-#sidebar h3 + ul {
-    margin-top: 0;
-}
-
-#sidebar ul + h3 {
-    margin-bottom: 0.4em;
+    margin: 0;
 }
 
 /* fonts */
@@ -173,10 +193,15 @@ h1, #menu, #breadcrumbs, #logininfo, #sidebar, #footerleft, #footerright, .page-
     border-top-left-radius: 1.0em;
     border-top-right-radius: 1.0em;
 }
+#logininfo :link, #logininfo :visited {
+    color: #000;
+}
+#logininfo .username {
+    font-weight: bold;
+}
 #main {
 }
 #content-wrapper {
-    border-right: 1px solid #dddddd;
 }
 /*
 :link {
@@ -187,9 +212,7 @@ h1, #menu, #breadcrumbs, #logininfo, #sidebar, #footerleft, #footerright, .page-
 }*/
 h1.page-title {
     color: #000000;
-    /*text-shadow: 0 0 9px #000000, 0 0 3px #ffffff;*/
-    /*text-shadow: 0px 0px 2px #ffffff, 0px 0px 4px #ffffff, 0px 0px 6px #000000, 0px 0px 8px #000000;*/
-    text-shadow: 1px 1px 1px #888888; /*, 2px 2px 4px #ffffff; *//*, 0px 0px 4px #ffffff, 0px 0px 6px #000000, 0px 0px 8px #000000;*/
+    text-shadow: 1px 1px 1px #888888;
 }
 .page-subtitle {
     color: #555555;
@@ -208,11 +231,23 @@ h1.page-title {
 .article-content {
     color: #000000;
 }
-#sidebar h3 {
+.gadget {
+    /*border: 1px solid #bbbbbb;
+    border-top: 1px solid #888888;*/
+}
+.gadget-header {
+    border: 1px solid #888888;
+    border-bottom: 1px solid #bbbbbb;
     background: #dddddd;
     color: #000000;
-    border-radius: 0.8em;
-    text-shadow: 1px 1px 1px #888888;
+    text-shadow: 1px 1px 1px #aaaaaa;
+}
+.gadget-body {
+    border: 1px solid #cccccc;
+    border-top: none;
+}
+.gadget-body li:hover {
+    background: #eeeeee;
 }
 .article {
     border-bottom: solid 1px #dddddd;
@@ -225,7 +260,7 @@ h1.page-title {
     font-size: 0.8em;
 }
 
-#header, #sidebar h3, #footer-wrapper {
+#header, /*#sidebar h3, */#footer-wrapper {
     border: 1px solid #888888;
     box-shadow: 1px 1px 3px #999999;
     
@@ -250,7 +285,6 @@ h1.page-title {
     color: #777777;
     font-size: 0.8em;
     font-weight: bold;
-    /*text-shadow: -1px -1px 0px #aaaaaa; /*, 1px 1px 0px #888888;*/
 }
 .copyright :link, .powered-by-goblog :link, .copyright :visited, .powered-by-goblog :visited {
     color: #000000;

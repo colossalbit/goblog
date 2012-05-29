@@ -60,7 +60,7 @@ class Theme(object):
     DICT_ATTRIBUTES = ('templates',)
     
     extra_css = [
-        'goblog/style.css',
+        'goblog/style2.css',
     ]
     extra_js = []
     templates = {
