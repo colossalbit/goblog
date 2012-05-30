@@ -1,34 +1,15 @@
-{% extends theme.templates.base %}
+{% extends theme.templates.goblog_base %}
 {% load goblog_tags %}
-{% load guardian_tags %}
 {% load tz %}
 
 
 {% block headtitle %}
-{{ blog.title }}
+  {{ blog.title }}
 {% endblock headtitle %}
 
 
-{% block logininfo %}
-<ul>
-    {% if user.is_authenticated %}
-        <li class="username">{{ user.username }}</li>
-        <li><a href="{{LOGOUT_URL}}?next={{LOGOUT_REDIRECT_URL}}">Log out</a></li>
-        {% if blog %}
-          {% get_obj_perms user for blog as "blog_perms" %}
-          {% if "create_article" in blog_perms %}
-            <li><a href="{% goblog_blogurl 'goblog-article-create' blog.name %}">New Article</a></li>
-          {% endif %}
-        {% endif %}
-    {% else %}
-        <li><a href="{{LOGIN_URL}}?next={{LOGIN_REDIRECT_URL}}">Log in</a></li>
-    {% endif %}
-</ul>
-{% endblock logininfo %}
-
-
 {% block title %}
-<h1 class="page-title">{{ blog.title }}</h1>
+  {% include theme.templates.include_header %}
 {% endblock title %}
 
 
@@ -84,13 +65,4 @@
 </div>
 {% endblock sidebar %}
 
-
-{% block footerleft %}
-<span class="copyright">Copyright &copy; 2012 David White</span>
-{% endblock footerleft %}
-
-
-{% block footerright %}
-<span class="powered-by-goblog">Powered by <a href="TODO">GoBlog</a>, a <a href="https://www.djangoproject.com">Django</a> application.</span>
-{% endblock footerright %}
 

@@ -1,7 +1,8 @@
 import datetime
 import time
 
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import (ValidationError, ObjectDoesNotExist, 
+        ImproperlyConfigured)
 from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect
 from django.utils import timezone as djtimezone
 from django.utils.http import http_date
@@ -25,12 +26,25 @@ from ..core import theming
 class GoBlogMixin(object):
     """Mixin for all GoBlog views."""
     now = None  # facilitates testing without regard to the current date
+    template_alias = None
     
     def get_now(self):
         return self.now or djtimezone.now()
     
     def get_theme(self):
-        return theming.gettheme(appsettings.GOBLOG_DEFAULT_THEME)
+        try:
+            return self._theme
+        except AttributeError:
+            self._theme = theming.gettheme(appsettings.GOBLOG_DEFAULT_THEME)
+            return self._theme
+            
+    def get_template_names(self):
+        theme = self.get_theme()
+        tname = theme.templates.get(self.template_alias, None)
+        if tname is None:
+            m = "GoBlogMixin requires definition of 'template_alias'"
+            raise ImproperlyConfigured(m)
+        return [tname]
         
     def get_login_redirect_url(self):
         return self.request.path
@@ -238,7 +252,8 @@ class GoBlogArticleMixin(GoBlogBlogMixin):
 class BlogView(GoBlogBlogMixin, ListView):
     model = models.Article
     context_object_name = 'articles'
-    template_name = 'goblog/blogmain.html'
+    ##template_name = 'goblog/blogmain.html'
+    template_alias = 'blog_main'
     
     def get_queryset(self):
         qs = self.get_blog_articles()
@@ -264,7 +279,8 @@ class BlogView(GoBlogBlogMixin, ListView):
 class ArchiveView(GoBlogBlogMixin, ListView):
     model = models.Article
     context_object_name = 'articles'
-    template_name = 'goblog/archive.html'
+    ##template_name = 'goblog/archive.html'
+    template_alias = 'archive_month'
     
     def get_queryset(self):
         qs = self.get_blog_articles()
@@ -306,7 +322,8 @@ class ArticleView(GoBlogArticleMixin, DetailView):
     slug_field = 'id'
     slug_url_kwarg = 'articleid'
     context_object_name = 'article'
-    template_name = 'goblog/article.html'
+    ##template_name = 'goblog/article.html'
+    template_alias = 'article_main'
     
     def get_object(self, queryset=None):
         return self.get_article()
@@ -353,7 +370,8 @@ class ArticleFormView(FormView):
 
 class ArticleCreateView(GoBlogBlogMixin, ArticleFormView):
     form_class = forms.ArticleCreateForm
-    template_name = 'goblog/article_create.html'
+    ##template_name = 'goblog/article_create.html'
+    template_alias = 'article_create'
     
     def get_authorid(self):
         return self.request.user.id
@@ -408,7 +426,8 @@ class ArticleCreateView(GoBlogBlogMixin, ArticleFormView):
 
 class ArticleEditView(GoBlogArticleMixin, ArticleFormView):
     form_class = forms.ArticleEditForm
-    template_name = 'goblog/article_edit.html'
+    ##template_name = 'goblog/article_edit.html'
+    template_alias = 'article_edit'
     
     def get_editorid(self):
         return self.request.user.id

@@ -5,21 +5,7 @@
 body {
     width: 55em;
     margin: 0 auto;
-    background: #cccccc;
 }
-
-#body-wrapper {
-    background: #ffffff;
-}
-/*
-#main {
-    background: #ffffff;
-    z-index: 1;
-}
-#footer-wrapper, #header-wrapper {
-    background: #ffffff;
-    z-index: 2;
-}*/
 
 /* Header and its components */
 #header {

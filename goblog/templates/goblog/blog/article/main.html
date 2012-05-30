@@ -1,0 +1,13 @@
+{% extends theme.templates.base_blog %}
+{% load goblog_tags %}
+
+
+{% block headtitle %}
+  {{ article.title }} ({{ article.blog.title }}) 
+{% endblock headtitle %}
+
+
+{% block content %}
+  {% include theme.templates.include_article with render_full_article="true" %}
+{% endblock content %}
+

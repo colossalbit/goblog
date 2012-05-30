@@ -3,18 +3,11 @@
 
 
 {% block headtitle %}
-{{ blog.title }}: Edit Article
+  {{ blog.title }}: New Article
 {% endblock headtitle %}
 
 
-{% block title %}
-<h1 class="page-title">{{ blog.title }}: Edit Article</h1>
-{% endblock title %}
-
-
 {% block content %}
-<p>Editing: <a href="{% goblog_blogurl 'goblog-article-view' blog.name articleid=article.id %}">{{ article.title }}</a></p>
-<p>This is going to be a cool article.</p>
 
 {% if show_preview %}
 <p>Preview:</p>
@@ -34,9 +27,9 @@
 {% endif %}
 
 <div>
-  <form action="{% goblog_blogurl 'goblog-article-edit' blog.name articleid=article.id %}" method="post">
+  <form action="{% goblog_blogurl 'goblog-article-create' blog.name %}" method="post">
     {% csrf_token %}
-    <table id="article-edit-table">
+    <table id="article-create-table">
       <tr>
         <th>Title:</th>
         <td>{{ form.title }}</td>
