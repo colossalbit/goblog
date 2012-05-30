@@ -2,6 +2,7 @@ django>=1.4
 pytz
 django-guardian
 bleach
+docutils
 
 # recommended:
 #  south

@@ -60,7 +60,7 @@ class ArticleEditAdmin(admin.ModelAdmin):
     
 
 class ArticleContentAdmin(admin.ModelAdmin):
-    list_display = ('article', 'raw', 'text_start', 'text_end',)
+    list_display = ('article', 'raw', 'brief', 'full',)
     
     fields = ('article', 'raw',)
     

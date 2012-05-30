@@ -1,4 +1,5 @@
 import re
+import collections
 
 from django.utils import html as djhtml
 
@@ -22,6 +23,9 @@ def escape_django_braces(m):
     return djbracemap[m.group(0)]
     
 
+ArticleText = collections.namedtuple('ArticleText', 'brief full')
+    
+
 # end brief tag: "{{ end brief }}"
 re_end_brief = re.compile(r'\{\{[ \t]*end[ \t]+brief[ \t]*\}\}')
 
@@ -39,36 +43,18 @@ class ArticleCompiler(object):
         load the goblog template tags.
         """
         text_start, text_end = self.split_brief(text)
-        text_start = self.compile(text_start)
-        text_end = self.compile(text_end)
+        brief, full = self.compile(text_start, text_end, 
+                                   target_element_id=appsettings.GOBLOG_READMORE_ELEMENT_ID)
         
-        ##article_full, article_brief = self.decompose_compile_result(result)
-        text_start = self.prepend_load_goblog_tags(text_start)
-        if text_end:
-            text_end = self.prepend_load_goblog_tags(text_end)
-
-        return text_start, text_end
+        brief = self.prepend_load_goblog_tags(brief, section="brief")
+        if full:
+            full = self.prepend_load_goblog_tags(full, section="full")
+        return ArticleText(brief, full)
         
-    def decompose_compile_result(self, result):
-        text_end = ''
-        if isinstance(result, (list, tuple)):
-            if len(result) == 1:
-                text_start = result[0]
-            elif len(result) == 2:
-                text_start = result[0]
-                text_end = result[1]
-            else:
-                # TODO: Goblog-specific exception
-                m = ("Configuration error: unexpected result from article "
-                     "compiler.")
-                raise RuntimeError(m)
-        elif isinstance(result, basestring):
-            text_start = result
-        return text_start, text_end
-        
-    def compile(self, text):
+    def compile(self, text_start, text_end, target_element_id):
         """Take the given text and return HTML suitable for rendering in a 
-        Django template.
+        Django template.  The return value is a tuple: (brief, full).  If 
+        'text_end' is empty, then 'full' will also be empty.
         """
         raise NotImplementedError()
         
@@ -82,13 +68,6 @@ class ArticleCompiler(object):
         text_end = ''
         if len(parts) == 2:
             text_end = parts[1]
-        # if len(parts) == 1:
-            # brief = ''
-            # text_start = parts[0]
-        # else:
-            # assert len(parts) == 2
-            # brief = parts[0]
-            # full = ''.join(parts)
         return text_start, text_end
         
     def escape_braces(self, text):
@@ -110,13 +89,30 @@ class ArticleCompiler(object):
         """
         return djhtml.escape(text)
         
-    def prepend_load_goblog_tags(self, text):
+    def concatenate_full(self, text_start, text_end, target_element_id):
+        """Concatenates the start and end text, adding a target for 
+        'target_element_id' between the two.  This is intended to help 
+        subclasses produce the 'full' version of the article.  
+        
+        If 'text_end' is empty, the return value is the empty string.  
+        Otherwise, the return value will contain a ``<div>`` element.
+        
+        The 'text_start' and 'text_end' arguments may contain HTML.
+        """
+        if text_end:
+            elem = "<div id='{0}'></div>".format(target_element_id)
+            full = '\n'.join((text_start, elem, text_end))
+        else:
+            full = ''
+        return full
+        
+    def prepend_load_goblog_tags(self, text, section=None):
         """Adds the markup necessary for Django to load the goblog template 
         tags.
         
         This method is called by the __call__ method. Subclasses should *not* 
         call prepend_load_goblog_tags, unless they override the 
-        __call__ method.  
+        __call__ method.
         """
         return text
         # TODO: when goblog tags are implemented, use the following:

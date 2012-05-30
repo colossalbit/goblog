@@ -22,15 +22,15 @@
   
   
   <div class="article-content">
-    {{ article.content.text_start|safe }}
-    {% if render_full_article %}
-      <div id="read-more"></div>
-      {{ article.content.text_end|safe }}
+    {% if render_full_article and article.content.full %}
+      {{ article.content.full|safe }}
+    {% else %}
+      {{ article.content.brief|safe }}
     {% endif %}
   </div> <!-- div.article-content -->
     
   {% if not render_full_article %}
-    {% if article.content.text_end %}
+    {% if article.content.full %}
       <p class="article-read-more">
         <a href="{% goblog_blogurl 'goblog-article-view' blog.name articleid=article.id %}#read-more">[ read more... ]</a>
       </p>

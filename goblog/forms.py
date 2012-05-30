@@ -25,8 +25,8 @@ class ArticleFormBase(forms.Form):
     def __init__(self, *args, **kwargs):
         self.do_compile = kwargs.pop('do_compile', True)
         super(ArticleFormBase, self).__init__(*args, **kwargs)
-        self.article_start = ''
-        self.article_end = ''
+        self.brief = ''
+        self.full = ''
         
     def clean_compiler_name(self):
         name = self.cleaned_data['compiler_name']
@@ -42,9 +42,9 @@ class ArticleFormBase(forms.Form):
             compiler_name = cleaned_data['compiler_name']
             dotted_name = resolve_article_compiler(compiler_name)
             # TODO: translate compilation errors into ValidationErrors
-            start, end = compile(dotted_name, raw)
-            self.article_start = start
-            self.article_end = end
+            brief, full = compile(dotted_name, raw)
+            self.brief = brief
+            self.full = full
         return cleaned_data
 
 

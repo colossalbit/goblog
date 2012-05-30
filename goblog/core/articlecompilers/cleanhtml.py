@@ -103,11 +103,15 @@ class CleanHtmlArticleCompiler(base.ArticleCompiler):
     ALLOWED_ATTRIBUTES = ALLOWED_ATTRIBUTES_DEFAULT
     ALLOWED_ELEMENTS = ALLOWED_ELEMENTS_DEFAULT
     
-    def compile(self, text):
-        text = self.escape_braces(text)
-        text = bleach.clean(text, tags=self.ALLOWED_ELEMENTS, 
-                            attributes=self.ALLOWED_ATTRIBUTES, strip=True)
-        return text
+    def compile(self, text_start, text_end, target_element_id):
+        brief = self.escape_braces(text_start)
+        text_end = self.escape_braces(text_end)
+        brief = bleach.clean(brief, tags=self.ALLOWED_ELEMENTS, 
+                             attributes=self.ALLOWED_ATTRIBUTES, strip=True)
+        text_end = bleach.clean(text_end, tags=self.ALLOWED_ELEMENTS, 
+                                attributes=self.ALLOWED_ATTRIBUTES, strip=True)
+        full = self.concatenate_full(brief, text_end, target_element_id)
+        return brief, full
         
 
 #==============================================================================#

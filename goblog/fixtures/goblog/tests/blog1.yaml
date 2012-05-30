@@ -17,8 +17,8 @@
 - model: goblog.articlecontent
   pk: blog1article1
   fields:
-    text_start: '<p>Brief 1</p>'
-    text_end:   '<p>Content 1</p>'
+    brief: '<p>Brief 1</p>'
+    full:   '<p>Brief 1</p><div id="read-more"></div><p>Content 1</p>'
     raw: '<p>Brief 1</p>{{ end brief }}<p>Content 1</p>'
 
 # article2
@@ -35,8 +35,8 @@
 - model: goblog.articlecontent
   pk: blog1article2
   fields:
-    text_start: '<p>Brief 2</p>'
-    text_end:   '<p>Content 2</p>'
+    brief: '<p>Brief 2</p>'
+    full:   '<p>Brief 2</p><div id="read-more"></div><p>Content 2</p>'
     raw: '<p>Brief 2</p>{{ end brief }}<p>Content 2</p>'
 
 # article3
@@ -53,8 +53,8 @@
 - model: goblog.articlecontent
   pk: blog1article3
   fields:
-    text_start: '<p>Brief 3</p>'
-    text_end:   "<p>Content 3</p>"
+    brief: '<p>Brief 3</p>'
+    full:   "<p>Brief 3</p><div id='read-more'></div><p>Content 3</p>"
     raw: "<p>Brief 3</p>{{ end brief }}<p>Content 3</p>"
 
 

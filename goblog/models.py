@@ -203,12 +203,12 @@ class ArticleContent(models.Model):
     article =       models.OneToOneField(Article, related_name='content', 
                                          editable=True, primary_key=True)
     raw =           models.TextField()
-    text_start =    models.TextField(blank=True, editable=False)
-    text_end =      models.TextField(blank=True, editable=False)
-    ##full =          models.TextField(blank=True, editable=False)
-    # The brief is shown on the front page and in other summaries. If blank, 
-    # 'full' is used.
-    ##brief =         models.TextField(blank=True, editable=False)
+    ##text_start =    models.TextField(blank=True, editable=False)
+    ##text_end =      models.TextField(blank=True, editable=False)
+    full =          models.TextField(blank=True, editable=False)
+    # The brief is shown on the front page and in other summaries. Further text 
+    # is found in 'full', which is only shown on the article's main page.
+    brief =         models.TextField(blank=True, editable=False)
     
     def clean(self):
         super(ArticleContent, self).clean()
@@ -217,12 +217,12 @@ class ArticleContent(models.Model):
         if self.raw:
             from .core.articlecompilers import compile, resolve_article_compiler
             dotted_name = resolve_article_compiler(self.article.compiler_name)
-            start, end = compile(dotted_name, self.raw)
-            self.text_start = start
-            self.text_end = end
+            brief, full = compile(dotted_name, self.raw)
+            self.brief = brief
+            self.full = full
         else:
-            self.text_start = ''
-            self.text_end = ''
+            self.brief = ''
+            self.full = ''
     
     def save(self, *args, **kwargs):
         super(ArticleContent, self).save(*args, **kwargs)

@@ -15,13 +15,19 @@
 {% block content %}
 <p>This is going to be a cool article.</p>
 
-{% if preview_start %}
+{% if show_preview %}
 <p>Preview:</p>
 <div class='article'>
 <div class='article-content'>
-    {{ preview_start|safe }}
-    <div id="read-more"></div>
-    {{ preview_end|safe }}
+    
+    <p>The brief...</p>
+    
+    {{ preview_brief|safe }}
+    
+    
+    <p>The full...</p>
+    
+    {{ preview_full|safe }}
 </div>
 </div>
 {% endif %}

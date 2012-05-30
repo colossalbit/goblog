@@ -339,8 +339,6 @@ class ArticleFormView(FormView):
         # TODO: make success URL redirect to article
         return utils.reverse_blog_url('goblog-blog-main', 
                                       blogid=self.get_blogid())
-        ##return urlreverse('goblog-blog-main', 
-        ##                  kwargs={'blogid': self.get_blogid()})
         
     def get_logout_redirect_url(self):
         return self.get_blog().get_absolute_url()
@@ -350,7 +348,6 @@ class ArticleFormView(FormView):
         
     def get_context_data(self, **kwargs):
         context = super(ArticleFormView, self).get_context_data(**kwargs)
-        ##context['blog'] = self.get_blog()
         return context
 
 
@@ -386,8 +383,8 @@ class ArticleCreateView(GoBlogBlogMixin, ArticleFormView):
         contentargs = {
             'article': article,
             'raw': form.cleaned_data['text'],
-            'text_start': form.article_start,
-            'text_end': form.article_end,
+            'brief': form.brief,
+            'full': form.full,
         }
         content = models.ArticleContent(**contentargs)
         content.save()
@@ -399,8 +396,9 @@ class ArticleCreateView(GoBlogBlogMixin, ArticleFormView):
     def form_valid(self, form):
         if self.show_preview():
             context = self.get_context_data(form=form, 
-                                            preview_start=form.article_start,
-                                            preview_end=form.article_end)
+                                            show_preview=True,
+                                            preview_brief=form.brief,
+                                            preview_full=form.full)
             return self.render_to_response(context)
         else:
             article = self.create_article(form)
@@ -435,8 +433,8 @@ class ArticleEditView(GoBlogArticleMixin, ArticleFormView):
     def update_article_content(self, form):
         content = self.get_article_content()
         content.raw = form.cleaned_data['text']
-        content.text_start = form.article_start
-        content.text_end = form.article_end
+        content.brief = form.brief
+        content.full = form.full
         content.save()
         return content
         
@@ -484,9 +482,10 @@ class ArticleEditView(GoBlogArticleMixin, ArticleFormView):
         
     def form_valid(self, form):
         if self.show_preview():
-            context = self.get_context_data(form=form, 
-                                            preview_start=form.article_start,
-                                            preview_end=form.article_end)
+            context = self.get_context_data(form=form,
+                                            show_preview=True,
+                                            preview_brief=form.brief,
+                                            preview_full=form.full)
             return self.render_to_response(context)
         else:
             article = self.update_article(form)

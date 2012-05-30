@@ -8,6 +8,7 @@ _DEFAULT_ARTICLE_COMPILERS = {
     u'basic':        u'goblog.core.articlecompilers.BasicArticleCompiler',
     u'cleanhtml':    u'goblog.core.articlecompilers.CleanHtmlArticleCompiler',
     u'nohtml':       u'goblog.core.articlecompilers.NoHtmlArticleCompiler',
+    u'restructuredtext': u'goblog.core.articlecompilers.ReStructuredTextArticleCompiler',
 }
 
 def _get_article_compiler_default(compilers):
@@ -39,6 +40,9 @@ def load_settings():
     
     # GOBLOG_DEFAULT_THEME
     GOBLOG_DEFAULT_THEME = getattr(settings, 'GOBLOG_DEFAULT_THEME', 'goblog.core.theming.Theme')
+    
+    # GOBLOG_READMORE_ELEMENT_ID  (Not an exposed setting.)
+    GOBLOG_READMORE_ELEMENT_ID = 'read-more'
     
     # load names into the module-level namespace
     for k,v in locals().iteritems():
