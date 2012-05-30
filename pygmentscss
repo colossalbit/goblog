@@ -1,0 +1,2 @@
+#!/bin/bash
+pygmentize -f html -S default -a .code > goblog/static/goblog/pygments.css

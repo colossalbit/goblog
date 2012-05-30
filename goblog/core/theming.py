@@ -61,6 +61,8 @@ class Theme(object):
     
     extra_css = [
         'goblog/style2.css',
+        'goblog/pygments.css',
+        'goblog/restructuredtext.css',
     ]
     extra_js = []
     templates = {

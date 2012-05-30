@@ -3,6 +3,7 @@ pytz
 django-guardian
 bleach
 docutils
+pygments  # for the reStructuredText article compiler
 
 # recommended:
 #  south

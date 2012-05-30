@@ -1,0 +1,62 @@
+/*==============================================================================
+    reStructuredText article formatting
+==============================================================================*/
+.article-content .borderless, 
+.article-content table.borderless td, 
+.article-content table.borderless th {
+    border: 0;
+}
+
+.article-content table.borderless td, .article-content table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+    padding: 0 0.5em 0 0 ! important;
+}
+
+.article-content .first {
+  /* Override more specific margin styles with "! important". */
+    margin-top: 0 ! important;
+}
+
+.article-content .last, .article-content .with-subtitle {
+    margin-bottom: 0 ! important;
+}
+
+.article-content .hidden {
+    display: none;
+}
+
+.article-content ol.simple, .article-content ul.simple {
+    margin-bottom: 1em;
+}
+
+.article-content table.citation {
+    border-left: solid 1px gray;
+    margin-left: 1px;
+}
+.article-content table.footnote {
+    border-left: solid 1px black;
+    margin-left: 1px;
+}
+.article-content table.docutils {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.article-content pre.literal-block, .article-content pre.doctest-block {
+    margin-left: 2em;
+    margin-right: 2em;
+}
+
+.article-content table.docutils td, .article-content table.docutils th,
+.article-content table.docinfo td, .article-content table.docinfo th {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    vertical-align: top;
+}
+.article-content table.docutils th.field-name, .article-content table.docinfo th.docinfo-name {
+    font-weight: bold;
+    text-align: left;
+    white-space: nowrap;
+    padding-left: 0;
+}

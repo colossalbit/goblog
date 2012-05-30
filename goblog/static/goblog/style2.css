@@ -1,14 +1,13 @@
-/* page structure */
+/*==============================================================================
+    Page Structure
+==============================================================================*/
 
 body {
     width: 55em;
     margin: 0 auto;
 }
 
-th {
-    text-align: left;
-}
-
+/* Header and its components */
 #header {
     overflow: auto;
     padding: 0.5em 1.0em;
@@ -26,6 +25,7 @@ th {
     margin: 0em;
 }
 
+/* Main and its components */
 #main {
     width: 55em;
     overflow: auto;
@@ -52,6 +52,7 @@ th {
     padding: 0 1em 0 1em;
 }
 
+/* Footer and its components */
 #footer {
     overflow: auto;
     padding: 0.5em 1em;
@@ -65,10 +66,29 @@ th {
     float: right;
 }
 
-h1.page-title {
+/*==============================================================================
+    Detailed visual structure
+==============================================================================*/
+
+/* Page title */
+h1.page-title, .page-subtitle {
     margin: 0;
 }
 
+/* Current user information */
+#logininfo ul {
+    list-style-type: none;
+    margin: 0;
+    padding-left: 0;
+    font-size: 0.8em;
+}
+
+#logininfo ul > li {
+    display: inline;
+    margin: 0 0.3em;
+}
+
+/* Article */
 .article {
     margin-bottom: 2em;
 }
@@ -101,26 +121,7 @@ h1.page-title {
     margin-left: 1em;
 }
 
-.page-subtitle {
-    margin: 0;
-}
-
-form p.datetime {
-    margin: 0;
-}
-
-#logininfo ul {
-    list-style-type: none;
-    margin: 0;
-    padding-left: 0;
-    font-size: 0.8em;
-}
-
-#logininfo ul > li {
-    display: inline;
-    margin: 0 0.3em;
-}
-
+/* Sidebar gadgets */
 .gadget {
     margin: 0;
 }
@@ -131,29 +132,22 @@ form p.datetime {
 
 .gadget-header {
     margin-bottom: 0;
-    /*margin-bottom: 0.4em;*/
 }
 
 .gadget-body {
     padding-top: 0.4em;
 }
 
+/* Sidebar detail */
 #sidebar ul {
     list-style-type: none;
-    /*padding-left: 1em;*/
     padding: 0;
     font-size: 0.8em;
     margin-top: 0;
 }
 
-#sidebar li + li {
-    /*padding-top: 0.3em;*/
-}
-
 #sidebar li {
-    /*padding: 0.2em 0.5em 0.2em 2em;*/
     padding: 0;
-    /*cursor: pointer;*/
 }
 
 #sidebar li > a {
@@ -168,7 +162,31 @@ form p.datetime {
     margin: 0;
 }
 
-/* fonts */
+/* Create/Edit Article form */
+#article-edit-table th, #article-create-table th {
+    text-align: left;
+}
+
+#article-edit-table {
+}
+
+#article-edit-table .text-field td,
+#article-create-table .text-field td {
+    width: 37em;
+}
+
+#article-edit-table textarea,
+#article-create-table textarea {
+    width: inherit;
+}
+
+form p.datetime {
+    margin: 0;
+}
+
+/*==============================================================================
+    Fonts
+==============================================================================*/
 
 body, h1, #menu, #breadcrumbs, #logininfo, #sidebar, #footerleft, #footerright, 
 .page-subtitle, .article-title, .article-info, .article-edit, .article-read-more
@@ -181,7 +199,9 @@ body, h1, #menu, #breadcrumbs, #logininfo, #sidebar, #footerleft, #footerright,
     font-size: 1.1em;
 }
 
-/* colors and borders */
+/*==============================================================================
+    Colors and Borders
+==============================================================================*/
 #header, #footer-wrapper {
     background: #dddddd;
 }
@@ -260,7 +280,7 @@ h1.page-title {
     font-size: 0.8em;
 }
 
-#header, /*#sidebar h3, */#footer-wrapper {
+#header, #footer-wrapper {
     border: 1px solid #888888;
     box-shadow: 1px 1px 3px #999999;
     
@@ -290,18 +310,8 @@ h1.page-title {
     color: #000000;
 }
 
-#article-edit-form {
-    
-}
 
-#article-edit-table .text-field td {
-    width: 37em;
-}
 
-#article-edit-table textarea { /* textarea {*/
-    margin: 0 auto;
-    /*width: 100%; */
-    width: inherit;
-}
+
 
 
