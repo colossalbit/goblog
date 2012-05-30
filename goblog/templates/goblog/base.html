@@ -38,7 +38,9 @@
 </head>
 <body>
 {% block body %}
+<div id="body-wrapper">
 
+<div id="header-wrapper">
 <div id="header">
   {% block header %}
     <div id="logininfo-wrapper">
@@ -53,7 +55,8 @@
     </div> <!-- end #title -->
     </div> <!-- end #title-wrapper -->
   {% endblock header %}
-</div>
+</div> <!-- end #header -->
+</div> <!-- end #header-wrapper -->
 
 <div id="main">
 
@@ -88,6 +91,8 @@
   {% endblock footer %}
 </div> <!-- end #footer -->
 </div> <!-- end #footer-wrapper -->
+
+</div> <!-- end #body-wrapper -->
 
 {% endblock body %}
 </body>

@@ -5,7 +5,21 @@
 body {
     width: 55em;
     margin: 0 auto;
+    background: #cccccc;
 }
+
+#body-wrapper {
+    background: #ffffff;
+}
+/*
+#main {
+    background: #ffffff;
+    z-index: 1;
+}
+#footer-wrapper, #header-wrapper {
+    background: #ffffff;
+    z-index: 2;
+}*/
 
 /* Header and its components */
 #header {
@@ -202,14 +216,14 @@ body, h1, #menu, #breadcrumbs, #logininfo, #sidebar, #footerleft, #footerright,
 /*==============================================================================
     Colors and Borders
 ==============================================================================*/
-#header, #footer-wrapper {
+#header, #footer {
     background: #dddddd;
 }
 #header {
     border-bottom-left-radius: 1.0em;
     border-bottom-right-radius: 1.0em;
 }
-#footer-wrapper {
+#footer {
     border-top-left-radius: 1.0em;
     border-top-right-radius: 1.0em;
 }
@@ -280,7 +294,7 @@ h1.page-title {
     font-size: 0.8em;
 }
 
-#header, #footer-wrapper {
+#header, #footer {
     border: 1px solid #888888;
     box-shadow: 1px 1px 3px #999999;
     
@@ -297,7 +311,7 @@ h1.page-title {
 #header {
     border-top: none;
 }
-#footer-wrapper {
+#footer {
     border-bottom: none;
 }
 
