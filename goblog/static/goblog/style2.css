@@ -291,7 +291,7 @@ h1.page-title {
     background: -o-linear-gradient(top,  rgba(238,238,238,1) 0%,rgba(187,187,187,1) 100%); /* Opera 11.10+ */
     background: -ms-linear-gradient(top,  rgba(238,238,238,1) 0%,rgba(187,187,187,1) 100%); /* IE10+ */
     background: linear-gradient(top,  rgba(238,238,238,1) 0%,rgba(187,187,187,1) 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#bbbbbb',GradientType=0 ); /* IE6-9 */
+    /*filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#bbbbbb',GradientType=0 );*/ /* IE6-9 */
 }
 
 #header {
