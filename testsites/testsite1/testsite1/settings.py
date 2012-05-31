@@ -5,8 +5,15 @@ import os
 import os.path
 
 PROJDIR = os.path.abspath(os.path.dirname(__file__))
-GOBLOG_PYPATH = os.path.abspath(os.path.join(PROJDIR,'..','..','..'))
-sys.path.append(GOBLOG_PYPATH)
+
+# Hack to determine if we need to add goblog to the PYTHONPATH...
+# If we're running tox, for example, it has already installed GoBlog in 
+# site-packages, so we won't need to add it here.
+try:
+    import goblog
+except ImportError:
+    GOBLOG_PYPATH = os.path.abspath(os.path.join(PROJDIR,'..','..','..'))
+    sys.path.append(GOBLOG_PYPATH)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG

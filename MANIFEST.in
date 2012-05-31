@@ -1,0 +1,13 @@
+include LICENSE
+include MANIFEST.in
+include README.rst
+include requirements.pip
+include requirements-test.pip
+
+recursive-include goblog *.py
+recursive-include goblog/fixtures *.yaml
+recursive-include goblog/templates *.html
+recursive-include testsites *.py
+recursive-include docs *
+
+prune docs/build
