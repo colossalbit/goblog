@@ -1,5 +1,5 @@
-##import os
-##import os.path
+import os
+import os.path
     
 ##from distutils.core import setup
 
@@ -30,13 +30,31 @@ from setuptools import setup, find_packages
 # even though we haven't defined DJANGO_SETTINGS_MODULE.
 import goblog
 
+THISDIR = os.path.abspath(os.path.dirname(__file__))
+
+def read_requirements(fname):
+    fpath = os.path.join(THISDIR, fname)
+    with open(fpath, 'r') as f:
+        reqs = []
+        for line in f:
+            i = line.find('#')
+            if i != -1:
+                line = line[:i]
+            if line.strip():
+                reqs.append(line.strip())
+    return reqs
+
+install_requires = read_requirements('requirements.pip')
+import pprint
+pprint.pprint(install_requires)
+
 setup(
     name = 'GoBlog',
     version = goblog.__version__,
     packages = find_packages(),
     include_package_data = True,
     
-    install_requires = [],
+    install_requires = install_requires,
     zip_safe = False,
     
     author = 'David White',
