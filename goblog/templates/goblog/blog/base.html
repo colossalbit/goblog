@@ -19,9 +19,11 @@
         <h3>Menu</h3>
     </div>
     <div class="gadget-body">
+        {% block gadget_menu_body %}
         <ul>
             <li><a href="{% goblog_blogurl 'goblog-blog-main' blog.name %}">{{ blog.title }}</a></li>
         </ul>
+        {% endblock gadget_menu_body %}
     </div>
 </div>
 
