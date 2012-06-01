@@ -37,17 +37,36 @@
     {% block title %}{% endblock title %}
     </div> <!-- end #title -->
     </div> <!-- end #title-wrapper -->
+    
+    {% if breadcrumbs %}
+    <div id="breadcrumbs-wrapper">
+    <div id="breadcrumbs">
+    {% block breadcrumbs %}
+      {% for item in breadcrumbs %}
+        &raquo; <a href="{{ item.1 }}">{{ item.0 }}</a>
+      {% endfor %}
+    {% endblock breadcrumbs %}
+    </div> <!-- end #breadcrumbs -->
+    </div> <!-- end #breadcrumbs-wrapper -->
+    {% endif %}
+    
   {% endblock header %}
 </div> <!-- end #header -->
 </div> <!-- end #header-wrapper -->
 
 <div id="main">
   {% block main %}
-    <div id="content-wrapper">
-    <div id="content">
-    {% block content %}{% endblock content %}
-    </div> <!-- end #content -->
-    </div> <!-- end #content-wrapper -->
+  
+    <div id="maincolumn-wrapper">
+    <div id="maincolumn">
+      
+      <div id="content-wrapper">
+      <div id="content">
+      {% block content %}{% endblock content %}
+      </div> <!-- end #content -->
+      </div> <!-- end #content-wrapper -->
+    </div> <!-- end #maincolumn-wrapper -->
+    </div> <!-- end #maincolumn -->
     
     <div id="sidebar-wrapper">
     <div id="sidebar">
@@ -68,4 +87,5 @@
 </div> <!-- end #body-wrapper -->
 
 {% endblock body %}
+
 

@@ -46,6 +46,13 @@ class GoBlogMixin(object):
             raise ImproperlyConfigured(m)
         return [tname]
         
+    def get_root_breadcrumbs(self):
+        # (link name, URL)
+        return [('Home', 'TODO'),]
+        
+    def get_breadcrumbs(self):
+        return self.get_root_breadcrumbs()
+        
     def get_login_redirect_url(self):
         return self.request.path
         
@@ -63,6 +70,8 @@ class GoBlogMixin(object):
         context['LOGIN_REDIRECT_URL'] = self.get_login_redirect_url()
         context['LOGOUT_REDIRECT_URL'] = self.get_logout_redirect_url()
         context['theme'] = self.get_theme()
+        if appsettings.GOBLOG_ENABLE_BREADCRUMBS:
+            context['breadcrumbs'] = self.get_breadcrumbs()
         return context
         
     def validate_user_permissions(self, request):
@@ -183,24 +192,20 @@ class GoBlogBlogMixin(GoBlogMixin):
         qs = qs.annotate(dcount=Count('published'))
         return ArchiveList(qs)
         
-        # # get the 'published' Field instance
-        # pfield = models.Article._meta.get_field('published')
-        
-
-        # # Wrapping in generator function allows the results to be iterated over 
-        # # multiple times
-        # def _iter():
-            # for obj in qs:
-                # yield {
-                    # # convert from string to datetime.datetime object
-                    # 'date':  pfield.to_python(obj['published']), 
-                    # 'count': obj['dcount']
-                # }
-        # return _iter
-        
     def get_recent_articles_list(self):
         qs = self.get_blog_articles()[:self.recent_articles_size]
         return qs
+        
+    def get_root_breadcrumbs(self):
+        bc = super(GoBlogBlogMixin, self).get_root_breadcrumbs()
+        if self.get_blogid() != appsettings.GOBLOG_DEFAULT_BLOG:
+            name = 'Blogs'
+            url = 'TODO'
+            bc.append((name, url))
+        name = self.get_blog().title
+        url = urlreverse('goblog-blog-main', kwargs={'blogid': self.get_blogid()})
+        bc.append((name, url))
+        return bc
         
     def get_context_data(self, **kwargs):
         context = super(GoBlogBlogMixin, self).get_context_data(**kwargs)
@@ -231,6 +236,14 @@ class GoBlogArticleMixin(GoBlogBlogMixin):
             self._article = qs.get(id=self.get_articleid())
         return self._article
         
+    def get_root_breadcrumbs(self):
+        bc = super(GoBlogArticleMixin, self).get_root_breadcrumbs()
+        name = self.get_article().title
+        url = urlreverse('goblog-article-view', kwargs={'blogid': self.get_blogid(), 
+                                                        'articleid': self.get_articleid()})
+        bc.append((name, url))
+        return bc
+        
     def validate_user_permissions(self, request):
         article = self.get_article()
         now = self.get_now()
@@ -249,7 +262,22 @@ class GoBlogArticleMixin(GoBlogBlogMixin):
         
 
 #==============================================================================#
+class BlogsView(GoBlogMixin, ListView):
+    # /blogs/
+    
+    model = models.Blog
+    context_object_name = 'blogs'
+    template_alias = 'blogs_main'
+    
+    def get_queryset(self):
+        qs = models.Blog.objects.exclude(name=appsettings.GOBLOG_DEFAULT_BLOG)
+        return qs.order_by('title')
+
+
 class BlogView(GoBlogBlogMixin, ListView):
+    # /blogs/BLOGID/
+    # /blog/  (the default blog)
+    
     model = models.Article
     context_object_name = 'articles'
     ##template_name = 'goblog/blogmain.html'
@@ -277,6 +305,9 @@ class BlogView(GoBlogBlogMixin, ListView):
             
 
 class ArchiveView(GoBlogBlogMixin, ListView):
+    # /blogs/BLOGID/archive/YYYY/MM/
+    # /blog/archive/YYYY/MM/   (for the default blog)
+    
     model = models.Article
     context_object_name = 'articles'
     ##template_name = 'goblog/archive.html'
@@ -318,6 +349,9 @@ class ArchiveView(GoBlogBlogMixin, ListView):
         
 
 class ArticleView(GoBlogArticleMixin, DetailView):
+    # /blogs/BLOGID/articles/ARTICLEID/
+    # /blog/articles/ARTICLEID/   (for the default blog)
+    
     model = models.Article
     slug_field = 'id'
     slug_url_kwarg = 'articleid'
@@ -341,6 +375,9 @@ class ArticleView(GoBlogArticleMixin, DetailView):
 
 #==============================================================================#
 class ArticlesView(RedirectView):
+    # /blogs/BLOGID/articles/
+    # /blog/articles/   (for the default blog)
+    
     permanent = True
     
     def get_redirect_url(self, **kwargs):
@@ -369,6 +406,9 @@ class ArticleFormView(FormView):
 
 
 class ArticleCreateView(GoBlogBlogMixin, ArticleFormView):
+    # /blogs/BLOGID/new_article/
+    # /blog/new_article/   (for the default blog)
+    
     form_class = forms.ArticleCreateForm
     ##template_name = 'goblog/article_create.html'
     template_alias = 'article_create'
@@ -425,6 +465,9 @@ class ArticleCreateView(GoBlogBlogMixin, ArticleFormView):
 
 
 class ArticleEditView(GoBlogArticleMixin, ArticleFormView):
+    # /blogs/BLOGID/articles/ARTICLEID/edit/
+    # /blog/articles/ARTICLEID/edit/   (for the default blog)
+    
     form_class = forms.ArticleEditForm
     ##template_name = 'goblog/article_edit.html'
     template_alias = 'article_edit'

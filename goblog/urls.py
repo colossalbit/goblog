@@ -56,6 +56,11 @@ urlpatterns = patterns('',
     # Non-default blog views:
     #
     
+    # blogs/
+    (sub(r'^blogs/$'), 
+        blogviews.BlogsView.as_view(), {}, 
+        'goblog-blogs-main'),
+    
     # blogs/BLOGID/
     (sub(r'^blogs/(?P<blogid>{BLOGID})/$'), 
         blogviews.BlogView.as_view(), {}, 

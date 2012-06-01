@@ -41,6 +41,9 @@ def load_settings():
     # GOBLOG_DEFAULT_THEME
     GOBLOG_DEFAULT_THEME = getattr(settings, 'GOBLOG_DEFAULT_THEME', 'goblog.core.theming.Theme')
     
+    # GOBLOG_DEFAULT_THEME
+    GOBLOG_ENABLE_BREADCRUMBS = getattr(settings, 'GOBLOG_ENABLE_BREADCRUMBS', False)
+    
     # GOBLOG_READMORE_ELEMENT_ID  (Not an exposed setting.)
     GOBLOG_READMORE_ELEMENT_ID = 'read-more'
     

@@ -8,21 +8,24 @@ body {
 }
 
 /* Header and its components */
-#header {
+/*#header {
     overflow: auto;
     padding: 0.5em 1.0em;
-}
+}*/
 
 #logininfo-wrapper {
-    margin-top: -0.5em;
+    /*margin-top: -0.5em;*/
     float: right;
+    padding-right: 1em;
 }
 
 #title-wrapper {   
 }
 
 #title {
-    margin: 0em;
+    /*overflow: auto;*/
+    padding: 0.5em 1.0em;
+    /*margin: 0em;*/
 }
 
 /* Main and its components */
@@ -32,14 +35,32 @@ body {
     margin: 0 0 0 0;
 }
 
-#content-wrapper {
+#maincolumn-wrapper {
     width: 40em;
     float: left;
 }
 
-#content {
+#maincolumn {
     margin-top: 1em;
     padding: 0 1em 0 1em;
+}
+
+#breadcrumbs-wrapper {
+    /*margin: 0.20em 0 0 0;*/
+    /*margin: 0.2em 0;*/
+    padding: 0.2em 1em 0.2em 1em;
+}
+#breadcrumbs {
+}
+
+#content-wrapper {
+    /*width: 40em;
+    float: left;*/
+}
+
+#content {
+    /*margin-top: 1em;
+    padding: 0 1em 0 1em;*/
 }
 
 #sidebar-wrapper {
@@ -202,10 +223,10 @@ body, h1, #menu, #breadcrumbs, #logininfo, #sidebar, #footerleft, #footerright,
 /*==============================================================================
     Colors and Borders
 ==============================================================================*/
-#header, #footer {
+#title, #footer {
     background: #dddddd;
 }
-#header {
+#header, #title {
     border-bottom-left-radius: 1.0em;
     border-bottom-right-radius: 1.0em;
 }
@@ -219,9 +240,8 @@ body, h1, #menu, #breadcrumbs, #logininfo, #sidebar, #footerleft, #footerright,
 #logininfo .username {
     font-weight: bold;
 }
-#main {
-}
-#content-wrapper {
+#breadcrumbs {
+    font-size: 0.8em;
 }
 /*
 :link {
@@ -280,7 +300,7 @@ h1.page-title {
     font-size: 0.8em;
 }
 
-#header, #footer {
+#title, #footer {
     border: 1px solid #888888;
     box-shadow: 1px 1px 3px #999999;
     
@@ -295,6 +315,12 @@ h1.page-title {
 }
 
 #header {
+    /*border: 1px solid #888888;
+    border-top: none;*/
+    background: #eeeeee;
+}
+
+#title {
     border-top: none;
 }
 #footer {

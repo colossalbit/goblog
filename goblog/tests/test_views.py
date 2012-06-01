@@ -24,6 +24,59 @@ class View_TestCaseBase(base.TestCaseBase):
 
 
 #==============================================================================#
+class BlogsView_TestCase(View_TestCaseBase):
+    fixtures = ['goblog/tests/superuser.yaml', 'goblog/tests/blog1.yaml']
+    
+    def test_anonymous_user(self):
+        url = urlreverse('goblog-blogs-main')
+        response = self.client.get(url)
+        context = response.context
+        body = response.content
+        self.assertEqual(200, response.status_code)
+        self.assertTrue('LOGIN_URL' in context)
+        self.assertTrue('LOGOUT_URL' in context)
+        self.assertTrue('LOGIN_REDIRECT_URL' in context)
+        self.assertTrue('LOGOUT_REDIRECT_URL' in context)
+        
+        # anonymous user, so login link should be available
+        self.assertTrue(context['LOGIN_URL'] in body)
+        # anonymous user, so no logout link should be available
+        self.assertTrue(context['LOGOUT_URL'] not in body)
+        self.assertEqual(url, context['LOGIN_REDIRECT_URL'])
+        
+        blogid = 'blog1'
+        
+        # create article link should not appear
+        createurl = urlreverse('goblog-article-create', 
+                               kwargs={'blogid': blogid})
+        self.assertTrue(createurl not in body)
+        
+        # link to the blog should appear
+        blogurl = urlreverse('goblog-blog-main', kwargs={'blogid': blogid})
+        self.assertTrue(blogurl in body)
+        
+        # no edit links should appear
+        edit1url = urlreverse('goblog-article-edit', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article1'})
+        self.assertTrue(edit1url not in body)
+        edit2url = urlreverse('goblog-article-edit', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article2'})
+        self.assertTrue(edit2url not in body)
+        edit3url = urlreverse('goblog-article-edit', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article3'})
+        self.assertTrue(edit3url not in body)
+        
+        # links to published articles should not appear
+        view2url = urlreverse('goblog-article-view', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article2'})
+        self.assertTrue(view2url not in body)
+        view3url = urlreverse('goblog-article-view', kwargs={'blogid': blogid, 
+                                                'articleid': 'blog1article3'})
+        self.assertTrue(view3url not in body)
+        
+
+
+#==============================================================================#
 class BlogView_TestCase(View_TestCaseBase):
     fixtures = ['goblog/tests/superuser.yaml', 'goblog/tests/blog1.yaml']
     

@@ -80,6 +80,7 @@ class Theme(object):
     templates = {
         'base':             'goblog/base.html',
         'goblog_base':      'goblog/goblog_base.html',
+        'blogs_main':       'goblog/blogs_main.html',
         'base_blog':        'goblog/blog/base.html',
         'blog_main':        'goblog/blog/main.html',
         'article_main':     'goblog/blog/article/main.html',

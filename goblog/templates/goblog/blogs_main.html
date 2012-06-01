@@ -1,0 +1,23 @@
+{% extends theme.templates.goblog_base %}
+{% load guardian_tags %}
+{% load goblog_tags %}
+
+
+{% block headtitle %}All Blogs{% endblock headtitle %}
+
+
+{% block title %}<h1 class="page-title">All Blogs</h1>{% endblock title %}
+
+
+{% block content %}
+<dl>
+  {% for blog in blogs %}
+    <dt>
+        <a href="{% goblog_blogurl 'goblog-blog-main' blog.name %}">{{ blog.title }}</a>
+    </dt>
+    <dd></dd>
+  {% endfor %}
+</dl>
+{% endblock content %}
+
+
