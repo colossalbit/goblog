@@ -99,4 +99,49 @@ def goblog_blogurl(parser, token):
     
 
 #==============================================================================#
+class RenderArticleNode(template.Node):
+    def __init__(self, article, part):
+        self.article = article
+        self.part = part
+
+    def render(self, context):
+        article = self.article.resolve(context)
+        if not isinstance(article, (models.Article, basestring)):
+            raise template.TemplateSyntaxError(
+                "The ARTICLEOBJ argument must be a goblog.models.Article "
+                "instance, not a {0}.".format(type(article))) 
+        
+        part = self.part.resolve(context)
+        if part == 'brief':
+            text = article.content.brief
+        elif part == 'full':
+            text = article.content.full
+        elif part == 'direct':
+            text = article
+        else:
+            raise template.TemplateSyntaxError(
+                "The ARTICLE_PART argument must be one of: 'brief' or 'full', "
+                "not '{0}'.".format(part))
+        
+        # TODO: perhaps cache this somehow?  But also allow cache to be cleared 
+        # when article contents are updated.
+        t = template.Template(text)
+        c = template.Context({}, autoescape=context.autoescape)
+        return t.render(c)
+    
+@register.tag
+def goblog_render_article(parser, token):
+    # syntax: goblog_render_article ARTICLEOBJ ARTICLE_PART
+    bits = token.split_contents()
+    format = '{% goblog_render_article ARTICLEOBJ ARTICLE_PART %}'
+    if len(bits) != 3:
+        raise template.TemplateSyntaxError("goblog_render_article "
+            "tag should be in format: {0}".format(format))
+    article = parser.compile_filter(bits[1])
+    part = parser.compile_filter(bits[2])
+    return RenderArticleNode(article, part)
+        
+    
+
+#==============================================================================#
 

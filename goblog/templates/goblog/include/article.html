@@ -23,9 +23,9 @@
   
   <div class="article-content">
     {% if render_full_article and article.content.full %}
-      {{ article.content.full|safe }}
+      {% goblog_render_article article 'full' %}
     {% else %}
-      {{ article.content.brief|safe }}
+      {% goblog_render_article article 'brief' %}
     {% endif %}
   </div> <!-- div.article-content -->
     

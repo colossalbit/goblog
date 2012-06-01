@@ -10,20 +10,19 @@
 {% block content %}
 
 {% if show_preview %}
-<p>Preview:</p>
-<div class='article'>
-<div class='article-content'>
-    
-    <p>The brief...</p>
-    
-    {{ preview_brief|safe }}
-    
-    
-    <p>The full...</p>
-    
-    {{ preview_full|safe }}
-</div>
-</div>
+    <h2 class='article-edit-part-header'>Preview article brief:</h2>
+    <div class='article'>
+    <div class='article-content'>
+        {% goblog_render_article preview_brief 'direct' %}
+    </div>
+    </div>
+
+    <h2 class='article-edit-part-header'>Preview article full:</h2>
+    <div class='article'>
+    <div class='article-content'>
+        {% goblog_render_article preview_full 'direct' %}
+    </div>
+    </div>
 {% endif %}
 
 <div>

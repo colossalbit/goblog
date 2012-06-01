@@ -226,6 +226,12 @@ class ArticleContent(models.Model):
     
     def save(self, *args, **kwargs):
         super(ArticleContent, self).save(*args, **kwargs)
+        
+    def render_brief(self):
+        pass
+        
+    def render_full(self):
+        pass
 
     
 #==============================================================================#
